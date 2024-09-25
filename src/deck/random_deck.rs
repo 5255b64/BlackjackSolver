@@ -15,7 +15,7 @@ pub struct SRandomDeck {
 
 impl SRandomDeck {
     pub fn new() -> Self {
-        let mut cards = vec![
+        let cards = vec![
             ECard::Ace,
             ECard::Two,
             ECard::Three,
@@ -116,7 +116,7 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_probability_map() {
-        let mut deck = SRandomDeck::new();
+        let deck = SRandomDeck::new();
         let map = deck.get_point_probability_map();
         println!("{:?}", map);
         println!("{:?}", map.get(&ECardPoint::Ace));

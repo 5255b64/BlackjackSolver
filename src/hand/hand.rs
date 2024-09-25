@@ -27,16 +27,21 @@ impl SHand {
         self.value = EValue::None;
     }
 
-    /// 根据手牌 重新计算value
-    /// 计算量偏大
-    #[deprecated]
-    pub fn update_value(&mut self) {
-        let mut value = EValue::None;
-        for card in &mut self.cards {
-            value = value + *card;
-        }
-        self.value = value;
-    }
+    // /// 删除一张手牌 更新value 并返回删除的手牌
+    // pub fn return_card(&mut self) -> Option<ECard> {
+    //     self.cards.pop()
+    // }
+    // 
+    // /// 根据手牌 重新计算value
+    // /// 计算量偏大
+    // #[deprecated]
+    // pub fn update_value(&mut self) {
+    //     let mut value = EValue::None;
+    //     for card in &mut self.cards {
+    //         value = value + *card;
+    //     }
+    //     self.value = value;
+    // }
 
     pub fn value(&self) -> EValue {
         self.value
