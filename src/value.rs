@@ -1,7 +1,7 @@
 use std::ops::Add;
-use strum_macros::EnumIter;
+use strum_macros::{Display, EnumIter};
 
-#[derive(Debug, Copy, Clone, PartialEq, EnumIter)]
+#[derive(Debug, Copy, Clone, PartialEq, EnumIter, Hash, Display, Eq)]
 pub enum EValue {
     None,
     H2,
@@ -13,6 +13,17 @@ pub enum EValue {
     H8,
     H9,
     H10,
+    S11,
+    S12,
+    S13,
+    S14,
+    S15,
+    S16,
+    S17,
+    S18,
+    S19,
+    S20,
+    S21,
     H11,
     H12,
     H13,
@@ -25,17 +36,6 @@ pub enum EValue {
     H20,
     H21,
     Bust,
-    S11,
-    S12,
-    S13,
-    S14,
-    S15,
-    S16,
-    S17,
-    S18,
-    S19,
-    S20,
-    S21,
 }
 
 impl EValue {

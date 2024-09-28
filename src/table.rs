@@ -157,14 +157,14 @@ impl STable {
                         if player_point > dealer_point {
                             // 玩家胜利
                             // 判断player是否blackjack
-                            if player_point == 21 && player_hand.hand.cards.len() == 2 {
+                            if player_hand.is_blackjack() {
                                 let win_value = (self.rule.blackjack_pay + 1) * Fraction::from(player_hand.get_bet());
                                 player_hand.win(win_value.floor().to_usize().unwrap());
                             } else {
                                 let win_value = player_hand.get_bet();
                                 player_hand.win(win_value);
                             }
-                        } else if player_point < dealer_point || player_point == 2 {
+                        } else if player_point < dealer_point || player_hand.is_bust() || (self.dealer_hand.is_blackjack() && !player_hand.is_blackjack()) {
                             // 玩家失败
                             player_hand.lose();
                         }
@@ -328,7 +328,7 @@ impl STable {
             (table_state, player_state) => {
                 // ignore
                 log::info!("状态错误：table状态-{:?} player状态-{:?}", table_state, player_state);
-                println!("状态错误：table状态-{:?} player状态-{:?}", table_state, player_state);
+                // println!("状态错误：table状态-{:?} player状态-{:?}", table_state, player_state);
                 Err(EPlayerActionError::ActionStatueError)
             }
         }

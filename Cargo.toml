@@ -15,6 +15,10 @@ serde_with = "3.8.1"
 # Log
 log = "0.4"
 
+# 数据可视化
+tabled = "0.15.0"
+plotters = "0.3.5"
+
 # Others
 dotenv = "0.15.0"
 strum = "0.26"

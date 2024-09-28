@@ -6,7 +6,7 @@ use crate::card::{ECard, ECardPoint};
 pub trait TDeck {
     fn draw(&mut self) -> Option<ECard>;
 
-    fn draw_specific(&mut self, card:ECard) -> Option<ECard>;
+    fn draw_specific(&mut self, card: ECard) -> Option<ECard>;
 
     fn shuffle(&mut self);
 

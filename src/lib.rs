@@ -5,3 +5,4 @@ mod value;
 mod config;
 pub mod table;
 pub mod player;
+mod solver;

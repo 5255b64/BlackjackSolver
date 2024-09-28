@@ -30,6 +30,10 @@ impl SDealerHand {
     pub fn point(&self) -> u8 {
         self.value().to_point()
     }
+
+    pub fn is_blackjack(&self) -> bool {
+        self.hand.is_blackjack()
+    }
 }
 
 #[cfg(test)]

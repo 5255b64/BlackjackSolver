@@ -5,12 +5,12 @@ use crate::value::EValue;
 #[derive(Debug, Clone)]
 pub struct SHand {
     pub cards: Vec<ECard>,
-    pub value:EValue,
+    pub value: EValue,
 }
 
 impl SHand {
     pub fn new() -> Self {
-        SHand{
+        SHand {
             cards: Vec::new(),
             value: EValue::None,
         }
@@ -46,9 +46,13 @@ impl SHand {
     pub fn value(&self) -> EValue {
         self.value
     }
+
+    pub fn is_blackjack(&self) -> bool {
+        self.value().to_point() == 21 && self.cards.len() == 2
+    }
 }
 
-impl Display for SHand{
+impl Display for SHand {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "({:?}, {:?})", self.value, self.cards)
     }
@@ -66,31 +70,31 @@ mod tests {
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
@@ -101,31 +105,31 @@ mod tests {
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card:ECard = rand::random();
+        let card: ECard = rand::random();
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");

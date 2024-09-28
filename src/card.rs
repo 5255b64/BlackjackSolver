@@ -1,12 +1,12 @@
 use std::ops::Add;
-use strum_macros::EnumIter;
+use strum_macros::{Display, EnumIter};
 use crate::value::EValue;
 use rand::{
     distributions::{Distribution, Standard},
     Rng,
 };
 
-#[derive(Debug, Copy, Clone, EnumIter, Hash, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, EnumIter, Hash, Eq, PartialEq, Display)]
 pub enum ECard {
     Ace,
     Two,
@@ -24,7 +24,7 @@ pub enum ECard {
 }
 
 /// 所有卡牌的点数 TJQK视为同一类枚举
-#[derive(Debug, Copy, Clone, EnumIter, Hash, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, EnumIter, Hash, Eq, PartialEq, Display)]
 pub enum ECardPoint {
     Ace,
     Two,
@@ -163,6 +163,26 @@ impl Distribution<ECard> for Standard {
             10 => ECard::Jack,
             11 => ECard::Queen,
             _ => ECard::King,
+        }
+    }
+}
+
+impl ECard {
+    pub fn to_point(&self) -> ECardPoint {
+        match self {
+            ECard::Ace => ECardPoint::Ace,
+            ECard::Two => ECardPoint::Two,
+            ECard::Three => ECardPoint::Three,
+            ECard::Four => ECardPoint::Four,
+            ECard::Five => ECardPoint::Five,
+            ECard::Six => ECardPoint::Six,
+            ECard::Seven => ECardPoint::Seven,
+            ECard::Eight => ECardPoint::Eight,
+            ECard::Nine => ECardPoint::Nine,
+            ECard::Ten => ECardPoint::Ten,
+            ECard::Jack => ECardPoint::Ten,
+            ECard::Queen => ECardPoint::Ten,
+            ECard::King => ECardPoint::Ten,
         }
     }
 }

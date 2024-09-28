@@ -1,4 +1,4 @@
-pub mod SUiPlayer;
+pub mod StaticStrategyPlayer;
 
 #[derive(Debug)]
 pub enum EPlayerAction {

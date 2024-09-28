@@ -1,19 +1,22 @@
 use tokio::{self, time};
 use BlackjackSolver::card::ECard;
-use BlackjackSolver::player::SUiPlayer::SUiPlayer;
+use BlackjackSolver::player::StaticStrategyPlayer::SStaticStrategyPlayer;
 use BlackjackSolver::table::{EPlayerActionError, ETableRunError, STable};
 
 #[tokio::main]
 async fn main() {
     println!("{:?}", ECard::Seven);
 
-    let player = SUiPlayer::new();
+    let player = SStaticStrategyPlayer::new();
     let mut table = STable::new_random_deck();
     table.but_chips(10000);
+    let mut c = 1;
     while true {
-        print_table(&table);
+        // print_table(&table);
+        println!("Player Chips：{:?}\tRound: {c}", table.player_chips);
+        c += 1;
         let action = player.action(&table);
-        println!("Player操作：{action:?}");
+        // println!("Player操作：{action:?}");
         let mut result = table.receive_player_action(action);
         // println!("Table Result: {result:?}\n\n");
         while true {
@@ -27,7 +30,7 @@ async fn main() {
                 }
             }
         }
-        time::sleep(time::Duration::from_millis(100)).await;
+        time::sleep(time::Duration::from_millis(1)).await;
     };
     ()
 }

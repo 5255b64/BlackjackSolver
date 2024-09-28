@@ -10,7 +10,6 @@ pub struct SPlayerHand {
     // 保险
     pub insurance: usize,
 }
-
 impl SPlayerHand {
     pub fn new() -> Self {
         SPlayerHand {
@@ -81,6 +80,10 @@ impl SPlayerHand {
 
     pub fn lose(&mut self) {
         self.betting_box = 0;
+    }
+
+    pub fn is_blackjack(&self) -> bool {
+        self.hand.is_blackjack()
     }
 }
 

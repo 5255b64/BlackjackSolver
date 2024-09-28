@@ -1,13 +1,14 @@
 use crate::player::EPlayerAction;
 use crate::table::{ETableState, STable};
 
-pub struct SUiPlayer {
+pub struct SStaticStrategyPlayer {
     c:usize
 }
 
-impl SUiPlayer {
+/// 静态策略用户
+impl SStaticStrategyPlayer {
     pub fn new() -> Self {
-        SUiPlayer {
+        SStaticStrategyPlayer {
             c:0
         }
     }
