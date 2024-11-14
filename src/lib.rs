@@ -1,8 +1,2 @@
-mod deck;
-mod hand;
-pub mod card;
-mod value;
-mod config;
-pub mod table;
-pub mod player;
-mod solver;
+pub mod client;
+pub mod server;

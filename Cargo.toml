@@ -26,3 +26,18 @@ strum_macros = "0.26"
 rand = "0.8.4"
 fraction = "0.15.3"
 time = "0.3.36"
+
+# Ui
+bevy = { version = "0.14.2", features = ["dynamic_linking"] }
+
+# Enable a small amount of optimization in the dev profile.
+[profile.dev]
+opt-level = 1
+
+# Enable a large amount of optimization in the dev profile for dependencies.
+[profile.dev.package."*"]
+opt-level = 3
+
+# for Windows
+[target.x86_64-pc-windows-msvc]
+linker = "rust-lld.exe"
