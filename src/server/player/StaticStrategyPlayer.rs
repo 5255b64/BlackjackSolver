@@ -1,34 +1,32 @@
-use super::EPlayerAction;
 use super::super::table::{ETableState, STable};
+use super::EPlayerAction;
 
 pub struct SStaticStrategyPlayer {
-    c:usize
+    c: usize,
 }
 
 /// 静态策略用户
 impl SStaticStrategyPlayer {
     pub fn new() -> Self {
-        SStaticStrategyPlayer {
-            c:0
-        }
+        SStaticStrategyPlayer { c: 0 }
     }
     pub fn action(&self, table: &STable) -> EPlayerAction {
         match table.get_state() {
             ETableState::PlayerBet => {
-                // 永远bet1 todo
-                EPlayerAction::Bet(1)
+                // 永远bet 2 todo
+                EPlayerAction::Bet(2)
             }
             ETableState::PlayerBuyInsurance => {
                 // 永远不买 todo
                 EPlayerAction::BuyInsurance(0)
             }
-            ETableState::PlayerSplit(_) => {
+            ETableState::PlayerSplitOrDoubleDownOrHitOrStand(_) => {
                 // 必定split todo
-                EPlayerAction::Split(true)
+                EPlayerAction::Split
             }
             ETableState::PlayerDoubleDownOrHitOrStand(_) => {
                 // todo
-                match self.c%3 {
+                match self.c % 3 {
                     0 => EPlayerAction::DoubleDown,
                     1 => EPlayerAction::Hit,
                     _ => EPlayerAction::Stand,
@@ -36,12 +34,12 @@ impl SStaticStrategyPlayer {
             }
             ETableState::PlayerHitOrStand(_) => {
                 // todo
-                match self.c%2 {
+                match self.c % 2 {
                     1 => EPlayerAction::Hit,
                     _ => EPlayerAction::Stand,
                 }
             }
-            _ => EPlayerAction::NoAction
+            _ => EPlayerAction::WaitNext
         }
     }
 }

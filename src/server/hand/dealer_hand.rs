@@ -1,17 +1,15 @@
-use super::super::card::ECardNumber;
-use super::hand::SHand;
+use super::super::card::ECard;
 use super::super::value::EValue;
+use super::hand::SHand;
 
 #[derive(Debug, Clone)]
 pub struct SDealerHand {
-    pub hand:SHand
+    pub hand: SHand,
 }
 
 impl SDealerHand {
     pub fn new() -> Self {
-        SDealerHand{
-            hand: SHand::new(),
-        }
+        SDealerHand { hand: SHand::new() }
     }
 
     pub fn reset(&mut self) {
@@ -22,7 +20,7 @@ impl SDealerHand {
         self.hand.value()
     }
 
-    pub fn draw(&mut self, card: ECardNumber) {
+    pub fn draw(&mut self, card: ECard) {
         self.hand.draw(card);
     }
 
@@ -32,12 +30,14 @@ impl SDealerHand {
     }
 
     pub fn is_blackjack(&self) -> bool {
-        self.hand.is_blackjack()
+        self.hand.value().to_point() == 21 && self.hand.cards.len() == 2
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::server::card::{ECard, ECardColor};
+
     use super::super::super::card::ECardNumber;
     use super::SDealerHand;
 
@@ -45,12 +45,20 @@ mod tests {
     /// 随机生成两个card 相加求value
     async fn test1() {
         let mut dealer = SDealerHand::new();
-        dealer.draw(ECardNumber::Eight);
+        dealer.draw(ECard {
+            color: ECardColor::Hearts,
+            value: ECardNumber::Eight,
+        });
         assert_eq!(dealer.point(), 8);
-        dealer.draw(ECardNumber::Eight);
+        dealer.draw(ECard {
+            color: ECardColor::Hearts,
+            value: ECardNumber::Eight,
+        });
         assert_eq!(dealer.point(), 16);
-        dealer.draw(ECardNumber::Eight);
+        dealer.draw(ECard {
+            color: ECardColor::Hearts,
+            value: ECardNumber::Eight,
+        });
         assert_eq!(dealer.point(), 1);
     }
 }
-

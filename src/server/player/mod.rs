@@ -4,9 +4,10 @@ pub mod StaticStrategyPlayer;
 pub enum EPlayerAction {
     Bet(usize),
     BuyInsurance(usize),
-    Split(bool),
+    Split,
     DoubleDown,
     Hit,
     Stand,
+    WaitNext,
     NoAction
 }

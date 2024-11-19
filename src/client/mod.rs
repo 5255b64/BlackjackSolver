@@ -5,6 +5,7 @@ mod events;
 
 use game::*;
 use main_menu::*;
+
 use bevy::prelude::*;
 use systems::*;
 
@@ -12,6 +13,7 @@ pub fn run() {
     App::new()
         // Bevy Plugins
         .add_plugins(DefaultPlugins)
+        // Resources
         // My State
         .init_state::<AppState>()
         // My Plugins
@@ -19,7 +21,6 @@ pub fn run() {
         // Startup Systems
         .add_systems(Startup, spawn_camara)
         // Systems
-        // .add_systems(Update, exit_game)
         .run();
 }
 

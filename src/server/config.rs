@@ -44,16 +44,15 @@ impl SGameRule {
         self.bet_options.contains(&bet)
     }
 
-    pub fn check_insurance(&self, bet:usize, insurance:usize) -> bool {
+    pub fn check_insurance(&self, bet: usize, insurance: usize) -> bool {
         let max_insurance = self.insurance_max * bet;
-        if insurance>0 && max_insurance >= Fraction::from(insurance) {
+        if insurance > 0 && max_insurance >= Fraction::from(insurance) {
             true
         } else {
             false
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

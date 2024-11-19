@@ -70,6 +70,69 @@ pub fn despawn_cards(mut commands: Commands, card_query: Query<Entity, With<Card
     }
 }
 
+pub fn get_card_boundle(
+    color: &ECardColor,
+    number: &ECardNumber,
+    asset_server: &Res<AssetServer>,
+) -> (SpriteBundle, Card) {
+    let card_type = color.to_string();
+    let card_num = String::from(match number {
+        ECardNumber::Ace => "A",
+        ECardNumber::Two => "2",
+        ECardNumber::Three => "3",
+        ECardNumber::Four => "4",
+        ECardNumber::Five => "5",
+        ECardNumber::Six => "6",
+        ECardNumber::Seven => "7",
+        ECardNumber::Eight => "8",
+        ECardNumber::Nine => "9",
+        ECardNumber::Ten => "10",
+        ECardNumber::Jack => "J",
+        ECardNumber::Queen => "Q",
+        ECardNumber::King => "K",
+    });
+    (
+        SpriteBundle {
+            texture: asset_server.load(format!(
+                "{}{}{}{}",
+                "sprites/cards/card", card_type, card_num, ".png"
+            )),
+            ..default()
+        },
+        Card {},
+    )
+}
+
+pub fn get_card_sprite_boundle(
+    color: &ECardColor,
+    number: &ECardNumber,
+    asset_server: &Res<AssetServer>,
+) -> SpriteBundle {
+    let card_type = color.to_string();
+    let card_num = String::from(match number {
+        ECardNumber::Ace => "A",
+        ECardNumber::Two => "2",
+        ECardNumber::Three => "3",
+        ECardNumber::Four => "4",
+        ECardNumber::Five => "5",
+        ECardNumber::Six => "6",
+        ECardNumber::Seven => "7",
+        ECardNumber::Eight => "8",
+        ECardNumber::Nine => "9",
+        ECardNumber::Ten => "10",
+        ECardNumber::Jack => "J",
+        ECardNumber::Queen => "Q",
+        ECardNumber::King => "K",
+    });
+    SpriteBundle {
+        texture: asset_server.load(format!(
+            "{}{}{}{}",
+            "sprites/cards/card", card_type, card_num, ".png"
+        )),
+        ..default()
+    }
+}
+
 pub fn spawn_child_node_card(
     builder: &mut ChildBuilder,
     color: &ECardColor,
@@ -90,31 +153,6 @@ pub fn spawn_child_node_card(
             ..Default::default()
         })
         .with_children(|builder| {
-            let card_type = color.to_string();
-            let card_num = match number {
-                ECardNumber::Ace => "A",
-                ECardNumber::Two => "2",
-                ECardNumber::Three => "3",
-                ECardNumber::Four => "4",
-                ECardNumber::Five => "5",
-                ECardNumber::Six => "6",
-                ECardNumber::Seven => "7",
-                ECardNumber::Eight => "8",
-                ECardNumber::Nine => "9",
-                ECardNumber::Ten => "10",
-                ECardNumber::Jack => "J",
-                ECardNumber::Queen => "Q",
-                ECardNumber::King => "K",
-            };
-            builder.spawn((
-                SpriteBundle {
-                    texture: asset_server.load(format!(
-                        "{}{}{}{}",
-                        "sprites/cards/card", card_type, card_num, ".png"
-                    )),
-                    ..default()
-                },
-                Card {},
-            ));
+            builder.spawn(get_card_boundle(color, number, asset_server));
         });
 }

@@ -1,6 +1,6 @@
-use super::super::card::ECardNumber;
-use super::hand::SHand;
+use super::super::card::ECard;
 use super::super::value::EValue;
+use super::hand::SHand;
 
 #[derive(Debug, Clone)]
 pub struct SPlayerHand {
@@ -29,7 +29,7 @@ impl SPlayerHand {
         self.hand.value()
     }
 
-    pub fn draw(&mut self, card: ECardNumber) {
+    pub fn draw(&mut self, card: ECard) {
         self.hand.draw(card);
     }
 
@@ -49,12 +49,12 @@ impl SPlayerHand {
         self.insurance = bet;
     }
 
-    pub fn double_down(&mut self, card: ECardNumber) {
+    pub fn double_down(&mut self, card: ECard) {
         self.betting_box *= 2;
         self.draw(card);
     }
 
-    pub fn get_bet(&mut self) -> usize {
+    pub fn get_bet(&self) -> usize {
         self.betting_box
     }
 
@@ -71,7 +71,7 @@ impl SPlayerHand {
 
     pub fn should_split(&self) -> bool {
         let cards = &self.hand.cards;
-        cards.len() == 2 && cards.get(0).unwrap() == cards.get(1).unwrap()
+        cards.len() == 2 && cards.get(0).unwrap().value == cards.get(1).unwrap().value
     }
 
     pub fn win(&mut self, value: usize) {
@@ -80,10 +80,6 @@ impl SPlayerHand {
 
     pub fn lose(&mut self) {
         self.betting_box = 0;
-    }
-
-    pub fn is_blackjack(&self) -> bool {
-        self.hand.is_blackjack()
     }
 }
 
@@ -97,9 +93,10 @@ impl From<SHand> for SPlayerHand {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
+    use crate::server::card::{ECard, ECardColor};
+
     use super::super::super::card::ECardNumber;
     use super::SPlayerHand;
 
@@ -107,11 +104,44 @@ mod tests {
     /// 随机生成两个card 相加求value
     async fn test1() {
         let mut player = SPlayerHand::new();
-        player.draw(ECardNumber::Eight);
+        player.draw(ECard {
+            color: ECardColor::Hearts,
+            value: ECardNumber::Eight,
+        });
         assert_eq!(player.point(), 8);
-        player.draw(ECardNumber::Eight);
+        player.draw(ECard {
+            color: ECardColor::Hearts,
+            value: ECardNumber::Eight,
+        });
         assert_eq!(player.point(), 16);
-        player.draw(ECardNumber::Eight);
+        player.draw(ECard {
+            color: ECardColor::Hearts,
+            value: ECardNumber::Eight,
+        });
         assert_eq!(player.point(), 0);
+    }
+
+    #[test]
+    fn test_diy() {
+        
+        let card1 = ECard {
+            color: ECardColor::Clubs,
+            value: ECardNumber::Four,
+        };
+        let card2 = ECard {
+            color: ECardColor::Diamonds,
+            value: ECardNumber::Ace,
+        };
+        let card3 = ECard {
+            color: ECardColor::Spades,
+            value: ECardNumber::Three,
+        };
+        let mut hand = SPlayerHand::new();
+        hand.draw(card1);
+        println!("draw card1: {hand:?}");
+        hand.draw(card2);
+        println!("draw card2: {hand:?}");
+        hand.draw(card3);
+        println!("draw card3: {hand:?}");
     }
 }

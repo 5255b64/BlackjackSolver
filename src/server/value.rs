@@ -1,4 +1,4 @@
-use std::{default, ops::Add};
+use std::ops::Add;
 use strum_macros::{Display, EnumIter};
 
 #[derive(Debug, Copy, Clone, PartialEq, EnumIter, Hash, Display, Eq, Default)]

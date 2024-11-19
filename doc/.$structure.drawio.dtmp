@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2024-11-19T16:24:17.894Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.6.4 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="U2jN6WK8mFu1CCCcKc6y" version="24.6.4" type="device">
+<mxfile host="Electron" modified="2024-11-19T16:25:16.636Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.6.4 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="LTGmF5ESJ-gwokhHQKCf" version="24.6.4" type="device">
   <diagram name="第 1 页" id="0Xf5-WbQuykDUrxCoj9X">
     <mxGraphModel dx="1990" dy="1852" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -494,7 +494,7 @@
         <mxCell id="PJjSij8RPwTr9lBYMOLQ-32" value="&lt;h1 style=&quot;margin-top: 0px; font-size: 10px;&quot;&gt;用户操作&lt;/h1&gt;&lt;p style=&quot;font-size: 10px;&quot;&gt;1.Bet&lt;br&gt;2.BuyInsurance&lt;br&gt;3.Split&lt;br&gt;4.DoubleDown&lt;br&gt;5.Hit&lt;br&gt;6.Stand&lt;br&gt;7.WaitNext&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fontSize=10;" vertex="1" parent="1">
           <mxGeometry x="2200" y="1550" width="80" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="PJjSij8RPwTr9lBYMOLQ-33" value="&lt;h1 style=&quot;margin-top: 0px; font-size: 10px;&quot;&gt;后端反馈状态&lt;/h1&gt;&lt;p style=&quot;font-size: 10px;&quot;&gt;1.InitGame&lt;br&gt;2.WaitPlayerBuyInsurance&lt;br&gt;3.PlayerSplitCards&lt;br&gt;4.PlayerDrawCard&lt;br&gt;5.DealerDrawCard&lt;br&gt;6.PlayerWin&lt;br&gt;7.PlayerLose&lt;br&gt;7.WaitForNewGame&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fontSize=10;" vertex="1" parent="1">
+        <mxCell id="PJjSij8RPwTr9lBYMOLQ-33" value="&lt;h1 style=&quot;margin-top: 0px; font-size: 10px;&quot;&gt;后端反馈状态&lt;/h1&gt;&lt;p style=&quot;font-size: 10px;&quot;&gt;1.InitGame&lt;br&gt;2.WaitPlayerBuyInsurance&lt;br&gt;3.InsuranceResult&lt;br&gt;4.PlayerSplitCards&lt;br&gt;5.PlayerDrawCard&lt;br&gt;6.DealerDrawCard&lt;br&gt;7.PlayerWin&lt;br&gt;8.PlayerLose&lt;br&gt;9.WaitForNewGame&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fontSize=10;" vertex="1" parent="1">
           <mxGeometry x="2180" y="1720" width="120" height="130" as="geometry" />
         </mxCell>
       </root>

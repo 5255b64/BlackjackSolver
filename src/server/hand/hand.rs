@@ -1,10 +1,11 @@
 use std::fmt::{Display, Formatter};
-use super::super::card::ECardNumber;
+
+use super::super::card::ECard;
 use super::super::value::EValue;
 
 #[derive(Debug, Clone)]
 pub struct SHand {
-    pub cards: Vec<ECardNumber>,
+    pub cards: Vec<ECard>,
     pub value: EValue,
 }
 
@@ -17,9 +18,9 @@ impl SHand {
     }
 
     /// 获得一张手牌 并且更新value
-    pub fn draw(&mut self, card: ECardNumber) {
+    pub fn draw(&mut self, card: ECard) {
         self.cards.push(card);
-        self.value = self.value + card;
+        self.value = card + self.value;
     }
 
     pub fn reset(&mut self) {
@@ -31,7 +32,7 @@ impl SHand {
     // pub fn return_card(&mut self) -> Option<ECard> {
     //     self.cards.pop()
     // }
-    // 
+    //
     // /// 根据手牌 重新计算value
     // /// 计算量偏大
     // #[deprecated]
@@ -46,10 +47,6 @@ impl SHand {
     pub fn value(&self) -> EValue {
         self.value
     }
-
-    pub fn is_blackjack(&self) -> bool {
-        self.value().to_point() == 21 && self.cards.len() == 2
-    }
 }
 
 impl Display for SHand {
@@ -60,6 +57,8 @@ impl Display for SHand {
 
 #[cfg(test)]
 mod tests {
+    use crate::server::card::{ECard, ECardColor};
+
     use super::super::super::card::ECardNumber;
     use super::SHand;
 
@@ -70,31 +69,46 @@ mod tests {
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
@@ -105,34 +119,72 @@ mod tests {
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
 
         // add
-        let card: ECardNumber = rand::random();
+        let card: ECard = ECard {
+            color: rand::random(),
+            value: rand::random(),
+        };
         println!("add {card:?}");
         hand.draw(card);
         println!("{hand}");
     }
-}
 
+    #[test]
+    fn test_diy() {
+        
+        let card1 = ECard {
+            color: ECardColor::Clubs,
+            value: ECardNumber::Four,
+        };
+        let card2 = ECard {
+            color: ECardColor::Diamonds,
+            value: ECardNumber::Ace,
+        };
+        let card3 = ECard {
+            color: ECardColor::Spades,
+            value: ECardNumber::Three,
+        };
+        let mut hand = SHand::new();
+        hand.draw(card1);
+        println!("draw card1: {hand:?}");
+        hand.draw(card2);
+        println!("draw card2: {hand:?}");
+        hand.draw(card3);
+        println!("draw card3: {hand:?}");
+    }
+}

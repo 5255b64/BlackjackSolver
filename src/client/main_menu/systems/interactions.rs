@@ -1,6 +1,8 @@
 use bevy::app::AppExit;
 use bevy::prelude::*;
 
+use crate::client::resources::GameTable;
+
 use super::super::components::*;
 use super::super::styles::{HOVERED_BUTTON_COLOR, NORMAL_BUTTON_COLOR, PRESSED_BUTTON_COLOR};
 use super::super::AppState;
@@ -11,11 +13,13 @@ pub fn interact_with_play_button(
         (Changed<Interaction>, With<PlayButton>),
     >,
     mut app_state_next_state: ResMut<NextState<AppState>>,
+    mut res_game_table: ResMut<GameTable>,
 ) {
     if let Ok((interaction, mut background_color)) = button_query.get_single_mut() {
         match *interaction {
             Interaction::Pressed => {
                 *background_color = PRESSED_BUTTON_COLOR.into();
+                res_game_table.table.buy_chips(10000); // 调整购买码量
                 app_state_next_state.set(AppState::Game);
             }
             Interaction::Hovered => {

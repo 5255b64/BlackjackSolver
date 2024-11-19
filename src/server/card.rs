@@ -164,7 +164,6 @@ impl Distribution<ECardNumber> for Standard {
     }
 }
 
-
 // ECardColor impl ----------------------------------------------------------------------------------
 /// 随机生成一个ECardColor枚举
 /// #[deprecated]
@@ -204,8 +203,8 @@ impl Add<Self> for ECard {
     type Output = EValue;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let tmp1:EValue = self.into();
-        let tmp2:EValue = rhs.into();
+        let tmp1: EValue = self.into();
+        let tmp2: EValue = rhs.into();
         tmp1 + tmp2
     }
 }
@@ -257,13 +256,13 @@ mod tests {
             for color1 in ECardColor::iter() {
                 for value2 in ECardNumber::iter() {
                     for color2 in ECardColor::iter() {
-                        let card1 = ECard{
-                            color:color1,
-                            value:value1,
+                        let card1 = ECard {
+                            color: color1,
+                            value: value1,
                         };
-                        let card2 = ECard{
-                            color:color2,
-                            value:value2,
+                        let card2 = ECard {
+                            color: color2,
+                            value: value2,
                         };
                         let sum1 = card1 + card2;
                         let sum2 = card2 + card1;
@@ -276,5 +275,23 @@ mod tests {
             }
         }
         assert_eq!(error_list.len(), 0);
+    }
+
+    #[test]
+    fn test_diy() {
+        let card1 = ECard {
+            color: ECardColor::Clubs,
+            value: ECardNumber::Four,
+        };
+        let card2 = ECard {
+            color: ECardColor::Diamonds,
+            value: ECardNumber::Ace,
+        };
+        let card3 = ECard {
+            color: ECardColor::Spades,
+            value: ECardNumber::Three,
+        };
+        println!("card1+card2={}", card1 + card2);
+        println!("card1+card2+card3={}", card1 + (card2 + card3));
     }
 }
