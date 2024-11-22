@@ -13,3 +13,10 @@ impl Default for DealerHand {
         Self { point: Default::default(), cards: Default::default() }
     }
 }
+
+impl DealerHand {
+    pub fn reset(&mut self) {
+        self.point = EValue::default();
+        self.cards.clear();
+    }
+}

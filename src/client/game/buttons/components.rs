@@ -6,7 +6,7 @@ pub struct ButtonBar {}
 
 /// 选定筹码量 开始游戏
 #[derive(Component)]
-pub struct StartButton {}
+pub struct BetButton {}
 
 #[derive(Component)]
 pub struct HitButton {}

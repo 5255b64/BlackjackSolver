@@ -15,7 +15,6 @@ use bevy::prelude::*;
 use buttons::ButtonPlugin;
 use dealer::DealerPlugin;
 use events::*;
-use keyboard::keyboard_esc_exit_game;
 use player::PlayerPlugin;
 use resources::GameTable;
 use systems::*;

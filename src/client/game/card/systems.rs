@@ -64,11 +64,16 @@ pub fn spawn_cards(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-pub fn despawn_cards(mut commands: Commands, card_query: Query<Entity, With<Card>>) {
+pub fn despawn_cards(commands: &mut Commands, card_query: &Query<Entity, With<Card>>) {
     for card_entity in card_query.iter() {
         commands.entity(card_entity).despawn();
     }
 }
+
+pub fn system_despawn_cards(mut commands: Commands, card_query: Query<Entity, With<Card>>) {
+    despawn_cards(&mut commands, &card_query);
+}
+
 
 pub fn get_card_boundle(
     color: &ECardColor,

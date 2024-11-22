@@ -1,21 +1,19 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use plotters::data::float;
 
 use crate::{
     client::{
         card::{
-            self,
             components::Card,
-            systems::{get_card_boundle, get_card_sprite_boundle},
+            systems::get_card_sprite_boundle,
         },
         resources::GameTable,
     },
-    server::{card::{ECard, ECardColor, ECardNumber}, hand::dealer_hand},
+    server::card::ECard,
 };
 
 use super::resources::DealerHand;
 
-const X_START: f32 = 100.0;
+const X_START: f32 = 200.0;
 const Y_START: f32 = 600.0;
 const X_STEP: f32 = 200.0;
 
@@ -54,36 +52,3 @@ pub fn spawn_new_dealer_card(
     commands.spawn((card_boundle, Card {}));
     cards.push(card);
 }
-
-// pub fn update_dealer_hand(
-//     mut commands: Commands,
-//     mut dealer_hand_query: Query<Entity, With<DealerHand>>,
-//     asset_server: Res<AssetServer>,
-//     table: Res<GameTable>,
-// ) {
-//     if let Ok(dealer_hand_entity) = dealer_hand_query.get_single_mut() {
-//         let dealer_hand = &table.table.dealer_hand;
-//         commands.entity(dealer_hand_entity).clear_children();
-//         println!("dealer card:{:?}", &dealer_hand.hand.cards);
-//         for card in &dealer_hand.hand.cards {
-//             commands.entity(dealer_hand_entity).with_children(|parent| {
-//                 parent
-//                     .spawn(NodeBundle {
-//                         style: Style {
-//                             width: Val::Percent(100.),
-//                             height: Val::Percent(100.),
-//                             align_items: AlignItems::Center,
-//                             justify_content: JustifyContent::Center,
-//                             flex_direction: FlexDirection::Row,
-//                             column_gap: Val::Px(12.),
-//                             ..Default::default()
-//                         },
-//                         ..Default::default()
-//                     })
-//                     .with_children(|builder| {
-//                         builder.spawn(get_card_boundle(&card.color, &card.value, &asset_server));
-//                     });
-//             });
-//         }
-//     }
-// }

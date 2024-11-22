@@ -13,3 +13,10 @@ impl Default for PlayerHand {
         Self { point: Default::default(), cards: Default::default() }
     }
 }
+
+impl PlayerHand {
+    pub fn reset(&mut self) {
+        self.point = EValue::default();
+        self.cards.clear();
+    }
+}
