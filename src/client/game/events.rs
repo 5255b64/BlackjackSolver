@@ -61,6 +61,7 @@ pub struct ResponseGameOver {
 pub struct ResponseDealerDrawCard {
     pub card: ECard,
     pub is_dealer_stop: bool,
+    pub is_revealed: bool,
 }
 
 pub struct EventPlugin;

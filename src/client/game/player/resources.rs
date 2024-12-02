@@ -3,20 +3,20 @@ use bevy::prelude::*;
 use crate::server::{card::ECard, value::EValue};
 
 #[derive(Resource)]
-pub struct PlayerHand {
+pub struct ResPlayer {
     pub point: EValue,
-    pub cards: Vec<ECard>,
+    pub hands: Vec<Vec<ECard>>,
 }
 
-impl Default for PlayerHand {
+impl Default for ResPlayer {
     fn default() -> Self {
-        Self { point: Default::default(), cards: Default::default() }
+        Self { point: Default::default(), hands: Default::default() }
     }
 }
 
-impl PlayerHand {
+impl ResPlayer {
     pub fn reset(&mut self) {
         self.point = EValue::default();
-        self.cards.clear();
+        self.hands.clear();
     }
 }

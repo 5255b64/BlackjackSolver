@@ -3,8 +3,7 @@ pub mod systems;
 
 
 use bevy::prelude::*;
-use resources::DealerHand;
-use systems::spawn_dealer_cards;
+use resources::ResDealer;
 
 use crate::client::AppState;
 
@@ -14,12 +13,12 @@ impl Plugin for DealerPlugin {
     fn build(&self, app: &mut App) {
         app
             // Resources
-            .init_resource::<DealerHand>()
+            .init_resource::<ResDealer>()
             // States
             // Event
             // Plugin
             // On Enter Systems
-            .add_systems(OnEnter(AppState::Game), spawn_dealer_cards)
+            // .add_systems(OnEnter(AppState::Game), spawn_dealer_cards)
             // Systems
             // .add_systems(
             //     Update,

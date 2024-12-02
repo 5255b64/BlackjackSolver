@@ -16,6 +16,7 @@ impl Plugin for CardPlugin {
             // .add_systems(OnEnter(AppState::Game), spawn_cards)
             // Systems
             // Exit State Systems
-            .add_systems(OnExit(AppState::Game), system_despawn_cards);
+            // .add_systems(OnExit(AppState::Game), system_despawn_cards)
+            ;
     }
 }

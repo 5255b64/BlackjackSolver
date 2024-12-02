@@ -1,18 +1,15 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::client::{
-    card::{components::Card, systems::despawn_cards},
-    dealer::resources::DealerHand,
     game::{
         events::RequestPlayerBet, RequestPlayerDoubleDown, RequestPlayerHit, RequestPlayerSplit,
         RequestPlayerStand,
     },
-    player::resources::PlayerHand,
     styles::{
         get_button_text_style, ACTIVE_BUTTON_COLOR, BUTTON_BAR_STYLE, BUTTON_STYLE,
         DEACTIVE_BUTTON_COLOR, HOVERED_BUTTON_COLOR, PRESSED_BUTTON_COLOR,
     },
-    GameState,
+    states::GameState,
 };
 
 use super::components::*;
@@ -24,20 +21,12 @@ pub fn interact_with_start_button(
     >,
     game_state: Res<State<GameState>>,
     mut user_bet_event_writer: EventWriter<RequestPlayerBet>,
-    mut dealer_hand: ResMut<DealerHand>,
-    mut player_hand: ResMut<PlayerHand>,
-    mut commands: Commands,
-    card_query: Query<Entity, With<Card>>,
 ) {
     if let Ok((interaction, mut background_color)) = button_query.get_single_mut() {
         match game_state.get() {
             GameState::PlayerBet => match *interaction {
                 Interaction::Pressed => {
                     *background_color = PRESSED_BUTTON_COLOR.into();
-                    // 清除上一局手牌
-                    despawn_cards(&mut commands, &card_query);
-                    dealer_hand.reset();
-                    player_hand.reset();
                     // 创建新手牌
                     user_bet_event_writer.send(RequestPlayerBet {
                         value: 2, // TODO 修改value
@@ -309,11 +298,11 @@ pub fn spawn_buttons(
         });
 }
 
-pub fn despawn_buttons(mut commands: Commands, button_bar_query: Query<Entity, With<ButtonBar>>) {
-    for button_bar_entity in button_bar_query.iter() {
-        commands.entity(button_bar_entity).despawn_recursive();
-    }
-}
+// pub fn despawn_buttons(mut commands: Commands, button_bar_query: Query<Entity, With<ButtonBar>>) {
+//     for button_bar_entity in button_bar_query.iter() {
+//         commands.entity(button_bar_entity).despawn_recursive();
+//     }
+// }
 
 pub fn update_bet_button_on_state_change(
     game_state: Res<State<GameState>>,

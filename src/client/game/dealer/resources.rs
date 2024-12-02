@@ -3,18 +3,18 @@ use bevy::prelude::*;
 use crate::server::{card::ECard, value::EValue};
 
 #[derive(Resource)]
-pub struct DealerHand {
+pub struct ResDealer {
     pub point: EValue,
     pub cards: Vec<ECard>,
 }
 
-impl Default for DealerHand {
+impl Default for ResDealer {
     fn default() -> Self {
         Self { point: Default::default(), cards: Default::default() }
     }
 }
 
-impl DealerHand {
+impl ResDealer {
     pub fn reset(&mut self) {
         self.point = EValue::default();
         self.cards.clear();

@@ -1,4 +1,4 @@
-use resources::PlayerHand;
+use resources::ResPlayer;
 
 pub mod components;
 pub mod resources;
@@ -12,7 +12,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
             // Resources
-            .init_resource::<PlayerHand>()
+            .init_resource::<ResPlayer>()
             // States
             // Event
             // Plugin
