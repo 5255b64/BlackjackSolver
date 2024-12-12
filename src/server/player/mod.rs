@@ -1,6 +1,6 @@
 pub mod StaticStrategyPlayer;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum EPlayerAction {
     Bet(usize),
     BuyInsurance(usize),

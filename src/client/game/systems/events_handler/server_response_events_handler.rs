@@ -5,17 +5,20 @@ use crate::client::{
     states::{FocusState, GameState},
 };
 
-use super::{super::super::events::server_response_events::*, EventClientPlayerDrawCard, EventClientPlayerSplitCards};
+use super::{
+    super::super::events::server_response_events::*, EventClientGameOver,
+    EventClientPlayerDrawCard, EventClientPlayerSplitCards, EventClientUpdateState,
+};
 use super::{super::systems::update_client_state, EventClientDealerDrawCard};
 
 pub fn handle_response_init_game_with_cards(
     mut event_reader: EventReader<EventResponseInitGameWithCards>,
-    table: ResMut<ResGameTable>,
-    mut game_state_next_state: ResMut<NextState<GameState>>,
+    // table: ResMut<ResGameTable>,
+    // mut game_state_next_state: ResMut<NextState<GameState>>,
     mut event_writer_player_draw_card: EventWriter<EventResponsePlayerDrawCard>,
     mut event_writer_dealer_draw_card: EventWriter<EventResponseDealerDrawCard>,
-    mut res_focus_next_state: ResMut<NextState<FocusState>>,
-    mut res_framework_handler: ResMut<ResFrameworkHandler>,
+    // mut res_focus_next_state: ResMut<NextState<FocusState>>,
+    // mut res_framework_handler: ResMut<ResFrameworkHandler>,
 ) {
     for event in event_reader.read().into_iter() {
         let EventResponseInitGameWithCards {
@@ -43,12 +46,12 @@ pub fn handle_response_init_game_with_cards(
                 is_player_stop: false,
             });
         }
-        update_client_state(
-            &table,
-            &mut game_state_next_state,
-            &mut res_focus_next_state,
-            &mut res_framework_handler,
-        );
+        // update_client_state(
+        //     &table,
+        //     &mut game_state_next_state,
+        //     &mut res_focus_next_state,
+        //     &mut res_framework_handler,
+        // );
     }
 }
 
@@ -138,26 +141,23 @@ pub fn handle_response_player_stand(
 
 pub fn handle_response_game_over(
     mut event_reader: EventReader<EventResponseGameOver>,
-    assert_server: Res<AssetServer>,
-    table: ResMut<ResGameTable>,
-    mut game_state_next_state: ResMut<NextState<GameState>>,
-    mut res_focus_next_state: ResMut<NextState<FocusState>>,
-    mut res_framework_handler: ResMut<ResFrameworkHandler>,
-    mut q_img: Query<(&mut UiImage, &Parent)>,
+    mut event_writer: EventWriter<EventClientGameOver>,
 ) {
     for event in event_reader.read().into_iter() {
+        let EventResponseGameOver {
+            bet_chips,
+            win_chips,
+            player_chips,
+        } = event;
         info!(
-            "Receive Event: ResponseGameOver\twin chips:{:?}",
-            event.win_chips
+            "Receive Event: ResponseGameOver\tbet:{:?}\twin:{:?}",
+            bet_chips, win_chips
         );
-        // blackjack的情况
-        res_framework_handler.dealer_reveal_card(&assert_server, &mut q_img);
-        update_client_state(
-            &table,
-            &mut game_state_next_state,
-            &mut res_focus_next_state,
-            &mut res_framework_handler,
-        );
+        event_writer.send(EventClientGameOver {
+            bet_chips: *bet_chips,
+            win_chips: *win_chips,
+            player_chips:*player_chips,
+        });
     }
 }
 
@@ -185,7 +185,7 @@ pub fn handle_response_player_draw_card(
 
 pub fn handle_response_dealer_draw_card(
     mut event_reader: EventReader<EventResponseDealerDrawCard>,
-    mut event_writer: EventWriter<EventClientDealerDrawCard>,
+    mut event_writer_client_dealer_draw_card: EventWriter<EventClientDealerDrawCard>,
 ) {
     for event in event_reader.read().into_iter() {
         let EventResponseDealerDrawCard {
@@ -197,7 +197,7 @@ pub fn handle_response_dealer_draw_card(
             "Receive Event: ResponseDealerDrawCard {:?}\tis_stop:{:?}",
             card, is_dealer_stop
         );
-        event_writer.send(EventClientDealerDrawCard {
+        event_writer_client_dealer_draw_card.send(EventClientDealerDrawCard {
             card: *card,
             is_dealer_stop: *is_dealer_stop,
             is_revealed: *is_revealed,

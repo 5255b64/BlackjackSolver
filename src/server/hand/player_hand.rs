@@ -58,9 +58,9 @@ impl SPlayerHand {
         self.betting_box
     }
 
-    pub fn split(&mut self) -> SHand {
+    pub fn split(&mut self) -> SPlayerHand {
         let card = self.hand.cards.pop().unwrap();
-        let mut hand = SHand::new();
+        let mut hand = SPlayerHand::new();
         hand.draw(card);
         hand
     }
@@ -80,6 +80,18 @@ impl SPlayerHand {
 
     pub fn lose(&mut self) {
         self.betting_box = 0;
+    }
+
+    /// 判断当前手牌是否为black jack
+    /// 需要同时满足以下条件：
+    /// 1.手牌value为soft 21
+    /// 2.手牌数量为2张
+    pub fn is_blackjack(&self) -> bool {
+        if self.hand.value == EValue::S21 && self.hand.cards.len() == 2 {
+            true
+        } else {
+            false
+        }
     }
 }
 
@@ -123,7 +135,6 @@ mod tests {
 
     #[test]
     fn test_diy() {
-        
         let card1 = ECard {
             color: ECardColor::Clubs,
             value: ECardNumber::Four,

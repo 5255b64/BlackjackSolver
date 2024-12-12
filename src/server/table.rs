@@ -92,6 +92,8 @@ pub enum ETableOutputEvent {
         is_dealer_stop: bool,
     }, // 等于 DealerHit
     GameOver {
+        player_chips: usize,
+        bet_chips: usize,
         win_chips: usize,
     },
     WaitForPlayerAction,
@@ -445,63 +447,117 @@ impl STable {
         self.player_hands.push(SPlayerHand::new());
     }
 
-    fn is_player_blackjack(&self) -> bool {
-        self.player_hands.len() == 1
-            && self.player_hands.get(0).unwrap().hand.cards.len() == 2
-            && self.player_hands.get(0).unwrap().value() == EValue::S21
+    pub fn reset_dealer_hand(&mut self) {
+        self.dealer_hand.reset();
+    }
+
+    // fn is_player_blackjack(&self) -> bool {
+    //     self.player_hands.len() == 1
+    //         && self.player_hands.get(0).unwrap().hand.cards.len() == 2
+    //         && self.player_hands.get(0).unwrap().value() == EValue::S21
+    // }
+
+    #[inline]
+    fn is_dealer_blackjack(&self) -> bool {
+        self.dealer_hand.is_blackjack()
     }
 
     fn check_result_and_reset(&mut self) -> ETableOutputEvent {
         // 判断结果
         let mut win_chips_amount = 0;
+        let mut bet_chips_amount = 0;
+
         let dealer_point = self.dealer_hand.point();
-        let is_player_blackjack = self.is_player_blackjack();
-        let is_dealer_blackjack = self.dealer_hand.is_blackjack();
-        if is_player_blackjack && is_dealer_blackjack {
-            // 庄家与玩家均BJ
-            // Push
-            self.player_chips += self.player_hands.get(0).unwrap().get_bet();
-        } else if is_player_blackjack && !is_dealer_blackjack {
-            // 庄家不BJ且玩家BJ
-            // 玩家胜利
-            let win_value = (self.rule.blackjack_pay + 1)
-                * Fraction::from(self.player_hands.get(0).unwrap().get_bet());
-            let win_value = win_value.floor().to_usize().unwrap();
-            self.player_hands
-                .get_mut(0)
-                .unwrap()
-                .borrow_mut()
-                .win(win_value);
-            win_chips_amount += win_value;
-        } else {
-            // 庄家与玩家均不BJ
-            for player_hand in &mut self.player_hands {
-                let player_point = player_hand.point();
-                if player_point > dealer_point {
-                    // 玩家胜利
-                    let win_value = player_hand.get_bet();
-                    player_hand.win(win_value);
-                    win_chips_amount += win_value;
-                } else if player_point < dealer_point
-                    || player_hand.is_bust()
-                    || is_dealer_blackjack
-                {
-                    // 玩家失败
-                    player_hand.lose();
-                } else {
-                    // 平局push 无需处理
+        let is_dealer_blackjack = self.is_dealer_blackjack();
+
+        // 计算输赢
+        for player_hand in &mut self.player_hands {
+            // 计算下注总筹码量(包括下注数量和保险)
+            bet_chips_amount += player_hand.betting_box + player_hand.insurance;
+
+            let is_player_blackjack = player_hand.is_blackjack();
+            let is_player_bust = player_hand.is_bust();
+            let player_point = player_hand.point();
+
+            if is_player_bust || dealer_point > player_point {
+                // 玩家失败情况
+                if is_dealer_blackjack {
+                    // 计算保险
+                    win_chips_amount += ((self.rule.insurance_pay)
+                        * Fraction::from(player_hand.insurance))
+                    .floor()
+                    .to_usize()
+                    .unwrap();
                 }
-                // 将筹码返还给玩家
-                self.player_chips += player_hand.get_bet();
+            } else if dealer_point == player_point {
+                // 平局情况
+                win_chips_amount += player_hand.get_bet();
+            } else {
+                // 玩家获胜情况
+                win_chips_amount += match is_player_blackjack {
+                    true => {
+                        ((self.rule.blackjack_pay) * Fraction::from(player_hand.get_bet()))
+                            .floor()
+                            .to_usize()
+                            .unwrap()
+                            + player_hand.get_bet()
+                    }
+                    false => player_hand.get_bet() * 2,
+                };
             }
         }
+        self.player_chips += win_chips_amount;
+
+        // let is_player_blackjack = self.is_player_blackjack();
+        // if is_player_blackjack && is_dealer_blackjack {
+        //     // 庄家与玩家均BJ
+        //     // Push
+        //     // self.player_chips += self.player_hands.get(0).unwrap().get_bet();
+        //     win_value += self.player_hands.get(0).unwrap().get_bet();
+        // } else if is_player_blackjack && !is_dealer_blackjack {
+        //     // 庄家不BJ且玩家BJ
+        //     // 玩家胜利
+        //     let win_value = (self.rule.blackjack_pay + 1)
+        //         * Fraction::from(self.player_hands.get(0).unwrap().get_bet());
+        //     let win_value = win_value.floor().to_usize().unwrap();
+        //     self.player_hands
+        //         .get_mut(0)
+        //         .unwrap()
+        //         .borrow_mut()
+        //         .win(win_value);
+        //     win_chips_amount += win_value;
+        // } else {
+        //     // 庄家与玩家均不BJ
+        //     for player_hand in &mut self.player_hands {
+        //         let player_point = player_hand.point();
+        //         if player_point > dealer_point {
+        //             // 玩家胜利
+        //             let win_value = player_hand.get_bet();
+        //             player_hand.win(win_value);
+        //             win_chips_amount += win_value;
+        //         } else if player_point < dealer_point
+        //             || player_hand.is_bust()
+        //             || is_dealer_blackjack
+        //         {
+        //             // 玩家失败
+        //             player_hand.lose();
+        //         } else {
+        //             // 平局push 无需处理
+        //         }
+        //         // 将筹码返还给玩家
+        //         self.player_chips += player_hand.get_bet();
+        //     }
+        // }
+
         // 重置状态
-        self.dealer_hand.reset();
+        self.reset_dealer_hand();
         self.reset_player_hand();
         // 状态转移
         self.state = ETableState::PlayerBet;
         ETableOutputEvent::GameOver {
+            bet_chips: bet_chips_amount,
             win_chips: win_chips_amount,
+            player_chips: self.player_chips,
         }
     }
 }

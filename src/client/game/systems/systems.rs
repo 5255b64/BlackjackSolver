@@ -4,10 +4,12 @@ use crate::{
     client::{
         // dealer::resources::ResDealer,
         game::{
-            server_response_events::{EventResponseDealerDrawCard, EventResponseGameOver}, states::GameState
+            server_response_events::{EventResponseDealerDrawCard, EventResponseGameOver},
+            states::GameState,
         },
         // player::resources::ResPlayer,
-        resources::{Focus, ResFrameworkHandler, ResGameTable}, states::FocusState,
+        resources::{Focus, ResFrameworkHandler, ResGameTable},
+        states::FocusState,
     },
     server::{player::EPlayerAction, table::ETableOutputEvent},
 };
@@ -29,9 +31,10 @@ pub fn update_server_state(
     };
 
     match action {
-        Some(action) => match table.table.receive_player_action(action) {
+        Some(action) => match table.table.receive_player_action(action.clone()) {
             Ok(r) => {
-                info!("(Dealer Response)Table Output: {r:?}");
+                info!("Player Request: {action:?}");
+                info!("Server Response: {r:?}");
 
                 match r {
                     ETableOutputEvent::DealerDrawCard {
@@ -44,8 +47,16 @@ pub fn update_server_state(
                             is_revealed: true,
                         });
                     }
-                    ETableOutputEvent::GameOver { win_chips } => {
-                        game_over_event_writer.send(EventResponseGameOver { win_chips });
+                    ETableOutputEvent::GameOver {
+                        bet_chips,
+                        win_chips,
+                        player_chips,
+                    } => {
+                        game_over_event_writer.send(EventResponseGameOver {
+                            bet_chips,
+                            win_chips,
+                            player_chips
+                        });
                     }
                     _ => {}
                 }
@@ -69,10 +80,15 @@ pub fn update_client_state(
     res_focus_next_state: &mut ResMut<NextState<FocusState>>,
     res_framework_handler: &mut ResMut<ResFrameworkHandler>,
 ) {
-    let game_state: GameState = table.table.get_state().into();
-    info!("New GameState:{game_state:?}");
-    game_state_next_state.set(game_state);
-    let (new_focus_state, new_focus_res) = match game_state {
+    // 获取server状态
+    let server_state: GameState = table.table.get_state().into();
+    info!("New GameState:{server_state:?}");
+
+    // 更新client的game状态
+    game_state_next_state.set(server_state);
+
+    // 更新focus状态（包括state和resource）
+    let (new_focus_state, new_focus_res) = match server_state {
         GameState::PlayerBet | GameState::CheckResultAndReset => (FocusState::None, Focus::None),
         GameState::DealerHitOrStand
         | GameState::DealerCheckBlackJack

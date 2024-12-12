@@ -166,7 +166,6 @@ impl CardHandler {
     ) {
         info!("reveal card:{:?}", self.card);
         for (mut img, parent) in q_img.iter_mut() {
-            info!("querying entity with parent:{:?}", parent);
             if parent.get() == self.entity {
                 info!("reveal card\t find entity:{:?}", self.card);
                 let card: Card = self.card.into();

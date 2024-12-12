@@ -3,14 +3,14 @@ pub struct ClientEventsHandlerPlugin;
 use bevy::prelude::*;
 
 use crate::client::{
-    game::systems::systems::update_client_state,
+    game::{client_events::EventClientUpdateInfoBar, systems::systems::update_client_state},
     resources::{ResFrameworkHandler, ResGameTable},
     states::{FocusState, GameState},
 };
 
 use super::{
-    EventClientDealerDrawCard, EventClientPlayerDrawCard, EventClientPlayerSplitCards,
-    EventClientUpdateState,
+    EventClientDealerDrawCard, EventClientGameOver, EventClientPlayerDrawCard,
+    EventClientPlayerSplitCards, EventClientUpdateState,
 };
 
 pub fn handle_client_player_split_cards(
@@ -124,6 +124,49 @@ pub fn handle_client_update_state(
     }
 }
 
+pub fn handle_client_update_info_bar(
+    mut event_reader: EventReader<EventClientUpdateInfoBar>,
+    mut res_framework_handler: ResMut<ResFrameworkHandler>,
+    mut q_text: Query<(&mut Text, Entity)>,
+) {
+    for event in event_reader.read().into_iter() {
+        let EventClientUpdateInfoBar { new_info } = event;
+        info!("Receive Event: EventClientUpdateInfoBar");
+
+        res_framework_handler.infobar_set_new_info(&mut q_text, new_info.clone());
+    }
+}
+
+pub fn handle_client_game_over(
+    mut event_reader: EventReader<EventClientGameOver>,
+    mut event_writer: EventWriter<EventClientUpdateInfoBar>,
+    mut res_framework_handler: ResMut<ResFrameworkHandler>,
+    assert_server: Res<AssetServer>,
+    mut q_img: Query<(&mut UiImage, &Parent)>,
+) {
+    for event in event_reader.read().into_iter() {
+        let EventClientGameOver {
+            bet_chips,
+            win_chips,
+            player_chips,
+        } = event;
+        info!(
+            "Receive Event: EventClientGameOver\t chips:{:?}\t bet:{:?}\t win:{:?}",
+            player_chips, bet_chips, win_chips
+        );
+        // 避免blackjack的情况下未揭示庄家底牌
+        res_framework_handler.dealer_reveal_card(&assert_server, &mut q_img);
+        // 修改info bar 文案
+        event_writer.send(EventClientUpdateInfoBar {
+            new_info: format!(
+                "Game Over\nchips:{:?}  bet:{:?}  win:{:?}",
+                player_chips, bet_chips, win_chips
+            )
+            .into(),
+        });
+    }
+}
+
 impl Plugin for ClientEventsHandlerPlugin {
     fn build(&self, app: &mut App) {
         app
@@ -135,6 +178,8 @@ impl Plugin for ClientEventsHandlerPlugin {
                     handle_client_player_draw_card,
                     handle_client_dealer_draw_card,
                     handle_client_update_state,
+                    handle_client_update_info_bar,
+                    handle_client_game_over,
                 ),
             );
     }

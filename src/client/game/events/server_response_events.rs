@@ -23,6 +23,7 @@ pub struct EventResponsePlayerSplitCards {
     pub card1: ECard,
     pub card2: ECard,
 }
+
 #[derive(Event)]
 pub struct EventResponsePlayerStand {
     pub is_player_stop: bool,
@@ -30,7 +31,9 @@ pub struct EventResponsePlayerStand {
 
 #[derive(Event)]
 pub struct EventResponseGameOver {
+    pub bet_chips: usize,
     pub win_chips: usize,
+    pub player_chips:usize,
 }
 
 #[derive(Event)]

@@ -24,7 +24,19 @@ pub struct EventClientPlayerDrawCard {
 }
 
 #[derive(Event)]
+pub struct EventClientUpdateInfoBar {
+    pub new_info: String,
+}
+
+#[derive(Event)]
 pub struct EventClientUpdateState {}
+
+#[derive(Event)]
+pub struct EventClientGameOver {
+    pub bet_chips: usize,
+    pub win_chips: usize,
+    pub player_chips:usize,
+}
 
 pub struct ClientEventsPlugin;
 
@@ -35,6 +47,8 @@ impl Plugin for ClientEventsPlugin {
             .add_event::<EventClientPlayerSplitCards>()
             .add_event::<EventClientDealerDrawCard>()
             .add_event::<EventClientPlayerDrawCard>()
-            .add_event::<EventClientUpdateState>();
+            .add_event::<EventClientUpdateState>()
+            .add_event::<EventClientUpdateInfoBar>()
+            .add_event::<EventClientGameOver>();
     }
 }
