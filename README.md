@@ -6,6 +6,7 @@
     - [x] split
     - [] 开局多路
 - client
+    - [] Button高亮显示调整
     - [] Resource整合
     - [x] 隐藏Dealer的暗牌
     - [x] 实时展示点数

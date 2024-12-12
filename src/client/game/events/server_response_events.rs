@@ -1,24 +1,6 @@
-use bevy::prelude::*;
-
 use crate::server::card::ECard;
 
-// --- 主动触发事件 ---
-#[derive(Event)]
-pub struct EventRequestPlayerBet {
-    pub value: usize,
-}
-
-#[derive(Event)]
-pub struct EventRequestPlayerHit {}
-
-#[derive(Event)]
-pub struct EventRequestPlayerStand {}
-
-#[derive(Event)]
-pub struct EventRequestPlayerDoubleDown {}
-
-#[derive(Event)]
-pub struct EventRequestPlayerSplit {}
+use bevy::prelude::*;
 
 // --- 被动触发事件 由server回传 ---
 #[derive(Event)]
@@ -65,21 +47,12 @@ pub struct EventResponseDealerDrawCard {
     pub is_revealed: bool,
 }
 
-#[derive(Event)]
-pub struct EventDealerRevealCard {
-}
+pub struct ServerResponseEventsPlugin;
 
-pub struct EventPlugin;
-
-impl Plugin for EventPlugin {
+impl Plugin for ServerResponseEventsPlugin {
     fn build(&self, app: &mut App) {
         app
             // Event
-            .add_event::<EventRequestPlayerBet>()
-            .add_event::<EventRequestPlayerHit>()
-            .add_event::<EventRequestPlayerStand>()
-            .add_event::<EventRequestPlayerSplit>()
-            .add_event::<EventRequestPlayerDoubleDown>()
             .add_event::<EventResponseInitGameWithCards>()
             .add_event::<EventResponseWaitPlayerBuyInsurance>()
             .add_event::<EventResponseInsuranceResult>()

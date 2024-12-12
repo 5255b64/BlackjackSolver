@@ -1,12 +1,12 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::client::{
-    game::{
-        components::*, events::EventRequestPlayerBet, EventRequestPlayerDoubleDown, EventRequestPlayerHit, EventRequestPlayerSplit, EventRequestPlayerStand
-    }, states::GameState, styles::{
+    game::{components::*, player_request_events::*},
+    states::GameState,
+    styles::{
         get_button_text_style, ACTIVE_BUTTON_COLOR, BUTTON_BAR_STYLE, BUTTON_STYLE,
         DEACTIVE_BUTTON_COLOR, HOVERED_BUTTON_COLOR, PRESSED_BUTTON_COLOR,
-    }
+    },
 };
 
 pub fn interact_with_start_button(
@@ -377,8 +377,6 @@ pub fn update_hit_button_on_state_change(
         }
     }
 }
-
-
 
 pub fn update_stand_button_on_state_change(
     game_state: Res<State<GameState>>,
