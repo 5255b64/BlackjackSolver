@@ -2,18 +2,22 @@
 ---
 ## Todo List
 - Backend & Client
-    - [] Focus转移
-    - [] split
+    - [x] Focus转移
+    - [x] split
     - [] 开局多路
 - client
     - [] Resource整合
-    - [] 隐藏Dealer的暗牌
-    - [] 实时展示点数
-    - [] 实时展示牌局状态
+    - [x] 隐藏Dealer的暗牌
+    - [x] 实时展示点数
+    - [] 添加每个hand的bet数据
+    - [] 实时展示牌局状态（InfoBar）
+        - [] 展示剩余筹码、当局筹码
+        - [] 展示对局结果
     - [] 自定义下注
 - backend
     - [] 仿真deck
 - Solver
     - [] BUG修复：超过17点还会拿牌
+    - [] BUG修复：player所有hand全bust之后还会拿牌
     - [] 离线Solver
     - [] Solver整合Client
