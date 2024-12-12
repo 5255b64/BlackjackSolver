@@ -34,7 +34,7 @@ fn print_table(table: &STable) {
     println!();
 
     print!("Player手牌：\n");
-    for (index, hand) in table.player_hand.iter().enumerate() {
+    for (index, hand) in table.player_hands.iter().enumerate() {
         print!(
             "{}-{:?}-{:?}: \t",
             index + 1,

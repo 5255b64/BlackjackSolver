@@ -2,25 +2,20 @@ use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::client::{
     game::{
-        events::RequestPlayerBet, RequestPlayerDoubleDown, RequestPlayerHit, RequestPlayerSplit,
-        RequestPlayerStand,
-    },
-    styles::{
+        components::*, events::EventRequestPlayerBet, EventRequestPlayerDoubleDown, EventRequestPlayerHit, EventRequestPlayerSplit, EventRequestPlayerStand
+    }, states::GameState, styles::{
         get_button_text_style, ACTIVE_BUTTON_COLOR, BUTTON_BAR_STYLE, BUTTON_STYLE,
         DEACTIVE_BUTTON_COLOR, HOVERED_BUTTON_COLOR, PRESSED_BUTTON_COLOR,
-    },
-    states::GameState,
+    }
 };
-
-use super::components::*;
 
 pub fn interact_with_start_button(
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<BetButton>),
+        (Changed<Interaction>, With<CompBetButton>),
     >,
     game_state: Res<State<GameState>>,
-    mut user_bet_event_writer: EventWriter<RequestPlayerBet>,
+    mut user_bet_event_writer: EventWriter<EventRequestPlayerBet>,
 ) {
     if let Ok((interaction, mut background_color)) = button_query.get_single_mut() {
         match game_state.get() {
@@ -28,7 +23,7 @@ pub fn interact_with_start_button(
                 Interaction::Pressed => {
                     *background_color = PRESSED_BUTTON_COLOR.into();
                     // 创建新手牌
-                    user_bet_event_writer.send(RequestPlayerBet {
+                    user_bet_event_writer.send(EventRequestPlayerBet {
                         value: 2, // TODO 修改value
                     });
                 }
@@ -49,17 +44,17 @@ pub fn interact_with_start_button(
 pub fn interact_with_split_button(
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<SplitButton>),
+        (Changed<Interaction>, With<CompSplitButton>),
     >,
     game_state: Res<State<GameState>>,
-    mut user_split_event_writer: EventWriter<RequestPlayerSplit>,
+    mut user_split_event_writer: EventWriter<EventRequestPlayerSplit>,
 ) {
     if let Ok((interaction, mut background_color)) = button_query.get_single_mut() {
         match game_state.get() {
-            GameState::PlayerSplitOrDoubleDownOrHitOrStand => match *interaction {
+            GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => match *interaction {
                 Interaction::Pressed => {
                     *background_color = PRESSED_BUTTON_COLOR.into();
-                    user_split_event_writer.send(RequestPlayerSplit {});
+                    user_split_event_writer.send(EventRequestPlayerSplit {});
                 }
                 Interaction::Hovered => {
                     *background_color = HOVERED_BUTTON_COLOR.into();
@@ -78,18 +73,18 @@ pub fn interact_with_split_button(
 pub fn interact_with_double_down_button(
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<DoubleDownButton>),
+        (Changed<Interaction>, With<CompDoubleDownButton>),
     >,
     game_state: Res<State<GameState>>,
-    mut user_double_down_event_writer: EventWriter<RequestPlayerDoubleDown>,
+    mut user_double_down_event_writer: EventWriter<EventRequestPlayerDoubleDown>,
 ) {
     if let Ok((interaction, mut background_color)) = button_query.get_single_mut() {
         match game_state.get() {
-            GameState::PlayerDoubleDownOrHitOrStand
-            | GameState::PlayerSplitOrDoubleDownOrHitOrStand => match *interaction {
+            GameState::PlayerDoubleDownOrHitOrStand(_)
+            | GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => match *interaction {
                 Interaction::Pressed => {
                     *background_color = PRESSED_BUTTON_COLOR.into();
-                    user_double_down_event_writer.send(RequestPlayerDoubleDown {});
+                    user_double_down_event_writer.send(EventRequestPlayerDoubleDown {});
                 }
                 Interaction::Hovered => {
                     *background_color = HOVERED_BUTTON_COLOR.into();
@@ -108,19 +103,19 @@ pub fn interact_with_double_down_button(
 pub fn interact_with_hit_button(
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<HitButton>),
+        (Changed<Interaction>, With<CompHitButton>),
     >,
     game_state: Res<State<GameState>>,
-    mut user_hit_event_writer: EventWriter<RequestPlayerHit>,
+    mut user_hit_event_writer: EventWriter<EventRequestPlayerHit>,
 ) {
     if let Ok((interaction, mut background_color)) = button_query.get_single_mut() {
         match game_state.get() {
-            GameState::PlayerHitOrStand
-            | GameState::PlayerDoubleDownOrHitOrStand
-            | GameState::PlayerSplitOrDoubleDownOrHitOrStand => match *interaction {
+            GameState::PlayerHitOrStand(_)
+            | GameState::PlayerDoubleDownOrHitOrStand(_)
+            | GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => match *interaction {
                 Interaction::Pressed => {
                     *background_color = PRESSED_BUTTON_COLOR.into();
-                    user_hit_event_writer.send(RequestPlayerHit {});
+                    user_hit_event_writer.send(EventRequestPlayerHit {});
                 }
                 Interaction::Hovered => {
                     *background_color = HOVERED_BUTTON_COLOR.into();
@@ -139,19 +134,19 @@ pub fn interact_with_hit_button(
 pub fn interact_with_stand_button(
     mut button_query: Query<
         (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<StandButton>),
+        (Changed<Interaction>, With<CompStandButton>),
     >,
     game_state: Res<State<GameState>>,
-    mut user_stand_event_writer: EventWriter<RequestPlayerStand>,
+    mut user_stand_event_writer: EventWriter<EventRequestPlayerStand>,
 ) {
     if let Ok((interaction, mut background_color)) = button_query.get_single_mut() {
         match game_state.get() {
-            GameState::PlayerHitOrStand
-            | GameState::PlayerDoubleDownOrHitOrStand
-            | GameState::PlayerSplitOrDoubleDownOrHitOrStand => match *interaction {
+            GameState::PlayerHitOrStand(_)
+            | GameState::PlayerDoubleDownOrHitOrStand(_)
+            | GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => match *interaction {
                 Interaction::Pressed => {
                     *background_color = PRESSED_BUTTON_COLOR.into();
-                    user_stand_event_writer.send(RequestPlayerStand {});
+                    user_stand_event_writer.send(EventRequestPlayerStand {});
                 }
                 Interaction::Hovered => {
                     *background_color = HOVERED_BUTTON_COLOR.into();
@@ -180,7 +175,7 @@ pub fn spawn_buttons(
                 transform: Transform::from_xyz(window.width() / 5.0, window.height() / 5.0, 0.0),
                 ..default()
             },
-            ButtonBar {},
+            CompButtonBar {},
         ))
         .with_children(|builder| {
             builder
@@ -190,7 +185,7 @@ pub fn spawn_buttons(
                         background_color: DEACTIVE_BUTTON_COLOR.into(),
                         ..default()
                     },
-                    BetButton {},
+                    CompBetButton {},
                 ))
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
@@ -213,7 +208,7 @@ pub fn spawn_buttons(
                         background_color: DEACTIVE_BUTTON_COLOR.into(),
                         ..default()
                     },
-                    SplitButton {},
+                    CompSplitButton {},
                 ))
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
@@ -236,7 +231,7 @@ pub fn spawn_buttons(
                         background_color: DEACTIVE_BUTTON_COLOR.into(),
                         ..default()
                     },
-                    DoubleDownButton {},
+                    CompDoubleDownButton {},
                 ))
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
@@ -258,7 +253,7 @@ pub fn spawn_buttons(
                         background_color: DEACTIVE_BUTTON_COLOR.into(),
                         ..default()
                     },
-                    HitButton {},
+                    CompHitButton {},
                 ))
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
@@ -280,7 +275,7 @@ pub fn spawn_buttons(
                         background_color: DEACTIVE_BUTTON_COLOR.into(),
                         ..default()
                     },
-                    StandButton {},
+                    CompStandButton {},
                 ))
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
@@ -306,7 +301,7 @@ pub fn spawn_buttons(
 
 pub fn update_bet_button_on_state_change(
     game_state: Res<State<GameState>>,
-    mut bet_button_query: Query<&mut BackgroundColor, With<BetButton>>,
+    mut bet_button_query: Query<&mut BackgroundColor, With<CompBetButton>>,
 ) {
     if game_state.is_changed() {
         // BetButton
@@ -325,13 +320,13 @@ pub fn update_bet_button_on_state_change(
 
 pub fn update_split_button_on_state_change(
     game_state: Res<State<GameState>>,
-    mut split_button_query: Query<&mut BackgroundColor, With<SplitButton>>,
+    mut split_button_query: Query<&mut BackgroundColor, With<CompSplitButton>>,
 ) {
     if game_state.is_changed() {
         // SplitButton
         if let Ok(mut background_color) = split_button_query.get_single_mut() {
             match game_state.get() {
-                GameState::PlayerSplitOrDoubleDownOrHitOrStand => {
+                GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => {
                     *background_color = ACTIVE_BUTTON_COLOR.into();
                 }
                 _ => {
@@ -344,14 +339,14 @@ pub fn update_split_button_on_state_change(
 
 pub fn update_double_down_button_on_state_change(
     game_state: Res<State<GameState>>,
-    mut double_down_button_query: Query<&mut BackgroundColor, With<DoubleDownButton>>,
+    mut double_down_button_query: Query<&mut BackgroundColor, With<CompDoubleDownButton>>,
 ) {
     if game_state.is_changed() {
         // DoubleDownButton
         if let Ok(mut background_color) = double_down_button_query.get_single_mut() {
             match game_state.get() {
-                GameState::PlayerDoubleDownOrHitOrStand
-                | GameState::PlayerSplitOrDoubleDownOrHitOrStand => {
+                GameState::PlayerDoubleDownOrHitOrStand(_)
+                | GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => {
                     *background_color = ACTIVE_BUTTON_COLOR.into();
                 }
                 _ => {
@@ -364,15 +359,15 @@ pub fn update_double_down_button_on_state_change(
 
 pub fn update_hit_button_on_state_change(
     game_state: Res<State<GameState>>,
-    mut hit_button_query: Query<&mut BackgroundColor, With<HitButton>>,
+    mut hit_button_query: Query<&mut BackgroundColor, With<CompHitButton>>,
 ) {
     if game_state.is_changed() {
         // HitButton
         if let Ok(mut background_color) = hit_button_query.get_single_mut() {
             match game_state.get() {
-                GameState::PlayerHitOrStand
-                | GameState::PlayerDoubleDownOrHitOrStand
-                | GameState::PlayerSplitOrDoubleDownOrHitOrStand => {
+                GameState::PlayerHitOrStand(_)
+                | GameState::PlayerDoubleDownOrHitOrStand(_)
+                | GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => {
                     *background_color = ACTIVE_BUTTON_COLOR.into();
                 }
                 _ => {
@@ -387,15 +382,15 @@ pub fn update_hit_button_on_state_change(
 
 pub fn update_stand_button_on_state_change(
     game_state: Res<State<GameState>>,
-    mut stand_button_query: Query<&mut BackgroundColor, With<StandButton>>,
+    mut stand_button_query: Query<&mut BackgroundColor, With<CompStandButton>>,
 ) {
     if game_state.is_changed() {
         // StandButton
         if let Ok(mut background_color) = stand_button_query.get_single_mut() {
             match game_state.get() {
-                GameState::PlayerHitOrStand
-                | GameState::PlayerDoubleDownOrHitOrStand
-                | GameState::PlayerSplitOrDoubleDownOrHitOrStand => {
+                GameState::PlayerHitOrStand(_)
+                | GameState::PlayerDoubleDownOrHitOrStand(_)
+                | GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => {
                     *background_color = ACTIVE_BUTTON_COLOR.into();
                 }
                 _ => {

@@ -1,7 +1,7 @@
 use bevy::app::AppExit;
 use bevy::prelude::*;
 
-use crate::client::resources::GameTable;
+use crate::client::resources::ResGameTable;
 
 use super::super::components::*;
 use super::super::styles::{HOVERED_BUTTON_COLOR, NORMAL_BUTTON_COLOR, PRESSED_BUTTON_COLOR};
@@ -13,7 +13,7 @@ pub fn interact_with_play_button(
         (Changed<Interaction>, With<PlayButton>),
     >,
     mut app_state_next_state: ResMut<NextState<AppState>>,
-    mut res_game_table: ResMut<GameTable>,
+    mut res_game_table: ResMut<ResGameTable>,
 ) {
     if let Ok((interaction, mut background_color)) = button_query.get_single_mut() {
         match *interaction {

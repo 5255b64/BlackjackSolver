@@ -1,15 +1,21 @@
 use bevy::prelude::*;
 
 use crate::client::{
-    buttons::components::{
-        BetButton, ButtonBar, DoubleDownButton, HitButton, SplitButton, StandButton,
+    game::components::{CompBetButton, CompButtonBar, CompDealer, CompDoubleDownButton, CompFramework, CompHands, CompHitButton, CompInfoBar, CompPlayer, CompSplitButton, CompStandButton},
+    resources::{
+        BetButtonHandler, ButtonBarHandler, DealerHandler, DoubleDownButtonHandler, HandsHandler,
+        HitButtonHandler, InfobarHandler, PlayerHandler, ResFrameworkHandler, SplitButtonHandler,
+        StandButtonHandler,
     },
-    game::components::{CompDealer, CompFramework, CompHands, CompInfoBar, CompPlayer},
-    styles::*,
 };
 
-pub fn spawn_framework(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let _framework_entity = build_framework(&mut commands, &asset_server);
+pub fn spawn_framework(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut res_structure_handler: ResMut<ResFrameworkHandler>,
+) {
+    let _framework_entity =
+        build_framework(&mut commands, &asset_server, &mut res_structure_handler);
 }
 
 pub fn despawn_framework(
@@ -21,172 +27,31 @@ pub fn despawn_framework(
     }
 }
 
-pub fn build_framework(commands: &mut Commands, asset_server: &Res<AssetServer>) -> Entity {
-    let entity_framework = commands
-        .spawn((
-            NodeBundle {
-                style: FRAMEWORK_STYLE,
-                background_color: FRAMEWORK_BACKGROUND_COLOR,
-                ..default()
-            },
-            CompFramework {},
-        ))
-        .id();
+pub fn build_framework(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    res_structure_handler: &mut ResMut<ResFrameworkHandler>,
+) -> Entity {
+    let entity_framework = CompFramework::get_entity(commands);
 
-    let entity_dealer = commands
-        .spawn((
-            NodeBundle {
-                style: DEALER_STYLE,
-                background_color: DEALER_BACKGROUND_COLOR,
-                ..default()
-            },
-            CompDealer {},
-        ))
-        .id();
+    let entity_dealer = CompDealer::get_entity(commands);
 
-    let entity_player = commands
-        .spawn((
-            NodeBundle {
-                style: PLAYER_STYLE,
-                background_color: PLAYER_BACKGROUND_COLOR,
-                ..default()
-            },
-            CompPlayer {},
-        ))
-        .id();
+    let entity_player = CompPlayer::get_entity(commands);
 
     let entity_infobar =
         CompInfoBar::get_entity(commands, String::from("This is Info Bar"), asset_server);
 
-    let entity_button_bar = commands
-        .spawn((
-            NodeBundle {
-                style: BUTTON_BAR_STYLE,
-                ..default()
-            },
-            ButtonBar {},
-        ))
-        .id();
+    let entity_button_bar = CompButtonBar::get_entity(commands);
 
-    let entity_bet_button = commands
-        .spawn((
-            ButtonBundle {
-                style: BUTTON_STYLE,
-                background_color: DEACTIVE_BUTTON_COLOR.into(),
-                ..default()
-            },
-            BetButton {},
-        ))
-        .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text {
-                    sections: vec![TextSection::new(
-                        "Start",
-                        get_button_text_style(&asset_server),
-                    )],
-                    justify: JustifyText::Center,
-                    ..default()
-                },
-                ..default()
-            });
-        })
-        .id();
+    let entity_bet_button = CompBetButton::get_entity(commands, asset_server);
 
-    let entity_split_button = commands
-        .spawn((
-            ButtonBundle {
-                style: BUTTON_STYLE,
-                background_color: DEACTIVE_BUTTON_COLOR.into(),
-                ..default()
-            },
-            SplitButton {},
-        ))
-        .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text {
-                    sections: vec![TextSection::new(
-                        "Split",
-                        get_button_text_style(&asset_server),
-                    )],
-                    justify: JustifyText::Center,
-                    ..default()
-                },
-                ..default()
-            });
-        })
-        .id();
+    let entity_split_button = CompSplitButton::get_entity(commands, asset_server);
 
-    let entity_double_down_button = commands
-        .spawn((
-            ButtonBundle {
-                style: BUTTON_STYLE,
-                background_color: DEACTIVE_BUTTON_COLOR.into(),
-                ..default()
-            },
-            DoubleDownButton {},
-        ))
-        .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text {
-                    sections: vec![TextSection::new(
-                        "Double",
-                        get_button_text_style(&asset_server),
-                    )],
-                    justify: JustifyText::Center,
-                    ..default()
-                },
-                ..default()
-            });
-        })
-        .id();
+    let entity_double_down_button = CompDoubleDownButton::get_entity(commands, asset_server);
 
-    let entity_hit_button = commands
-        .spawn((
-            ButtonBundle {
-                style: BUTTON_STYLE,
-                background_color: DEACTIVE_BUTTON_COLOR.into(),
-                ..default()
-            },
-            HitButton {},
-        ))
-        .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text {
-                    sections: vec![TextSection::new(
-                        "Hit",
-                        get_button_text_style(&asset_server),
-                    )],
-                    justify: JustifyText::Center,
-                    ..default()
-                },
-                ..default()
-            });
-        })
-        .id();
+    let entity_hit_button = CompHitButton::get_entity(commands, asset_server);
 
-    let entity_stand_button = commands
-        .spawn((
-            ButtonBundle {
-                style: BUTTON_STYLE,
-                background_color: DEACTIVE_BUTTON_COLOR.into(),
-                ..default()
-            },
-            StandButton {},
-        ))
-        .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text {
-                    sections: vec![TextSection::new(
-                        "Stand",
-                        get_button_text_style(&asset_server),
-                    )],
-                    justify: JustifyText::Center,
-                    ..default()
-                },
-                ..default()
-            });
-        })
-        .id();
+    let entity_stand_button = CompStandButton::get_entity(commands, asset_server);
 
     let entity_player_hands = CompHands::get_entity(commands);
 
@@ -214,5 +79,45 @@ pub fn build_framework(commands: &mut Commands, asset_server: &Res<AssetServer>)
         entity_player,
         entity_button_bar,
     ]);
+
+    // 构建ResStructureHandler
+    res_structure_handler.entity = Some(entity_framework);
+    res_structure_handler.dealer_handler = Some(DealerHandler {
+        hands_handler: HandsHandler {
+            hand_handler_list: Vec::new(),
+            entity: entity_dealer_hands,
+        },
+        entity: entity_dealer,
+    });
+    res_structure_handler.player_handler = Some(PlayerHandler {
+        hands_handler: HandsHandler {
+            hand_handler_list: Vec::new(),
+            entity: entity_player_hands,
+        },
+        entity: entity_player,
+    });
+    res_structure_handler.infobar_handler = Some(InfobarHandler {
+        info: String::from("This is info bar"),
+        entity: entity_infobar,
+    });
+    res_structure_handler.button_bar_handler = Some(ButtonBarHandler {
+        bet_button_handler: BetButtonHandler {
+            entity: entity_bet_button,
+        },
+        split_button_handler: SplitButtonHandler {
+            entity: entity_split_button,
+        },
+        double_down_button_handler: DoubleDownButtonHandler {
+            entity: entity_double_down_button,
+        },
+        hit_button_handler: HitButtonHandler {
+            entity: entity_hit_button,
+        },
+        stand_button_handler: StandButtonHandler {
+            entity: entity_stand_button,
+        },
+        entity: entity_button_bar,
+    });
+
     entity_framework
 }

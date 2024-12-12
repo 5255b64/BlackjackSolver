@@ -8,8 +8,8 @@ use game::*;
 use main_menu::*;
 
 use bevy::prelude::*;
-use resources::{GameTable};
-use states::{Focus, GameState, SimulationState};
+use resources::{ResGameTable, ResFrameworkHandler};
+use states::{FocusState, GameState, SimulationState};
 use systems::*;
 
 pub fn run() {
@@ -17,9 +17,10 @@ pub fn run() {
         // Bevy Plugins
         .add_plugins(DefaultPlugins)
         // Resources
-        .init_resource::<GameTable>()
+        .init_resource::<ResGameTable>()
+        .init_resource::<ResFrameworkHandler>()
         // My State
-        .init_state::<Focus>()
+        .init_state::<FocusState>()
         .init_state::<AppState>()
         .init_state::<SimulationState>()
         .init_state::<GameState>()

@@ -16,9 +16,9 @@ mod systems;
 use bevy::prelude::*;
 
 use buttons::ButtonPlugin;
-use dealer::DealerPlugin;
+// use dealer::DealerPlugin;
 use events::*;
-use player::PlayerPlugin;
+// use player::PlayerPlugin;
 use systems::*;
 
 
@@ -33,8 +33,8 @@ impl Plugin for GamePlugin {
             .add_plugins(EventPlugin)
             // Plugin
             .add_plugins(ButtonPlugin)
-            .add_plugins(PlayerPlugin)
-            .add_plugins(DealerPlugin)
+            // .add_plugins(PlayerPlugin)
+            // .add_plugins(DealerPlugin)
             .add_plugins(SystemPlugin)
             // On Enter Systems
             // Systems
