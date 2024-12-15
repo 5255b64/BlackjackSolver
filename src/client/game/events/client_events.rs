@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::server::card::ECard;
+use crate::{client::resources::Focus, server::card::ECard};
 
 #[derive(Event)]
 pub struct EventClientPlayerSplitCards {
@@ -35,7 +35,15 @@ pub struct EventClientUpdateState {}
 pub struct EventClientGameOver {
     pub bet_chips: usize,
     pub win_chips: usize,
-    pub player_chips:usize,
+    pub player_chips: usize,
+}
+
+/// 焦点转换事件
+/// 用于切换高亮展示
+#[derive(Event)]
+pub struct EventClientFocusChange {
+    pub old_focus: Focus,
+    pub new_focus: Focus,
 }
 
 pub struct ClientEventsPlugin;
@@ -49,6 +57,7 @@ impl Plugin for ClientEventsPlugin {
             .add_event::<EventClientPlayerDrawCard>()
             .add_event::<EventClientUpdateState>()
             .add_event::<EventClientUpdateInfoBar>()
-            .add_event::<EventClientGameOver>();
+            .add_event::<EventClientGameOver>()
+            .add_event::<EventClientFocusChange>();
     }
 }

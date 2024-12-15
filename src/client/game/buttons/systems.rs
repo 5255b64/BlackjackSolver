@@ -304,8 +304,13 @@ pub fn update_bet_button_on_state_change(
     mut bet_button_query: Query<&mut BackgroundColor, With<CompBetButton>>,
 ) {
     if game_state.is_changed() {
+        info!(
+            "update_bet_button_on_state_change:game_state={:?}",
+            game_state.get()
+        );
+
         // BetButton
-        if let Ok(mut background_color) = bet_button_query.get_single_mut() {
+        for mut background_color in bet_button_query.iter_mut() {
             match game_state.get() {
                 GameState::PlayerBet => {
                     *background_color = ACTIVE_BUTTON_COLOR.into();
@@ -324,7 +329,7 @@ pub fn update_split_button_on_state_change(
 ) {
     if game_state.is_changed() {
         // SplitButton
-        if let Ok(mut background_color) = split_button_query.get_single_mut() {
+        for mut background_color in split_button_query.iter_mut() {
             match game_state.get() {
                 GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => {
                     *background_color = ACTIVE_BUTTON_COLOR.into();
@@ -343,7 +348,7 @@ pub fn update_double_down_button_on_state_change(
 ) {
     if game_state.is_changed() {
         // DoubleDownButton
-        if let Ok(mut background_color) = double_down_button_query.get_single_mut() {
+        for mut background_color in double_down_button_query.iter_mut() {
             match game_state.get() {
                 GameState::PlayerDoubleDownOrHitOrStand(_)
                 | GameState::PlayerSplitOrDoubleDownOrHitOrStand(_) => {
@@ -363,7 +368,7 @@ pub fn update_hit_button_on_state_change(
 ) {
     if game_state.is_changed() {
         // HitButton
-        if let Ok(mut background_color) = hit_button_query.get_single_mut() {
+        for mut background_color in hit_button_query.iter_mut() {
             match game_state.get() {
                 GameState::PlayerHitOrStand(_)
                 | GameState::PlayerDoubleDownOrHitOrStand(_)
@@ -384,7 +389,7 @@ pub fn update_stand_button_on_state_change(
 ) {
     if game_state.is_changed() {
         // StandButton
-        if let Ok(mut background_color) = stand_button_query.get_single_mut() {
+        for mut background_color in stand_button_query.iter_mut() {
             match game_state.get() {
                 GameState::PlayerHitOrStand(_)
                 | GameState::PlayerDoubleDownOrHitOrStand(_)

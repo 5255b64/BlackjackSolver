@@ -1,4 +1,7 @@
-use bevy::{ecs::{identifier::error, observer::TriggerTargets}, prelude::*};
+use bevy::{
+    ecs::{identifier::error, observer::TriggerTargets},
+    prelude::*,
+};
 
 use crate::server::{card::ECard, table::STable, value::EValue};
 
@@ -30,7 +33,7 @@ pub struct ResFrameworkHandler {
 }
 
 /// 焦点
-#[derive(Default, Debug)]
+#[derive(Default, Clone, Debug, PartialEq, Eq)]
 pub enum Focus {
     #[default]
     None, // 牌局结束/等待开始 状态
@@ -64,6 +67,7 @@ pub struct HandHandler {
     pub cards_handler: CardsHandler,
     pub value_handler: ValueHandler,
     pub entity: Entity,
+    pub is_highlight: bool,
 }
 
 pub struct CardsHandler {
@@ -72,7 +76,6 @@ pub struct CardsHandler {
 }
 
 pub struct ValueHandler {
-    pub value: EValue,
     pub entity: Entity,
 }
 
@@ -223,11 +226,10 @@ impl CardsHandler {
 }
 
 impl ValueHandler {
-    pub fn set_value(&mut self, q_text: &mut Query<(&mut Text, Entity)>, new_value: EValue) {
-        self.value = new_value.clone();
+    pub fn set_value(&mut self, q_text: &mut Query<(&mut Text, Entity)>, new_info: String) {
         for (mut text, entity) in q_text.iter_mut() {
             if entity == self.entity {
-                text.sections[0].value = new_value.to_string();
+                text.sections[0].value = new_info.clone();
             }
         }
     }
@@ -247,7 +249,7 @@ impl HandHandler {
 
         if is_revealed {
             self.value = card + self.value;
-            self.value_handler.set_value(q_text, self.value);
+            self.set_value(q_text, self.value);
         }
 
         // 调整children handler
@@ -272,10 +274,10 @@ impl HandHandler {
                 entity: entity_cards,
             },
             value_handler: ValueHandler {
-                value: default(),
                 entity: entity_value,
             },
             entity,
+            is_highlight: false,
         }
     }
 
@@ -287,7 +289,7 @@ impl HandHandler {
     ) {
         self.value = card_handler.card + self.value;
         self.cards_handler.add_card_handler(commands, card_handler);
-        self.value_handler.set_value(q_text, self.value);
+        self.set_value(q_text, self.value);
     }
 
     pub fn split(
@@ -305,7 +307,7 @@ impl HandHandler {
                     .card
                     .value
                     .into();
-                self.value_handler.set_value(q_text, self.value);
+                self.set_value(q_text, self.value);
                 card_handler
             }
             None => {
@@ -319,6 +321,7 @@ impl HandHandler {
     pub fn reveal_card(
         &mut self,
         assert_server: &Res<AssetServer>,
+        q_text: &mut Query<(&mut Text, Entity)>,
         q_img: &mut Query<(&mut UiImage, &Parent)>,
     ) {
         // 调整展示的图像
@@ -326,6 +329,29 @@ impl HandHandler {
 
         // 调整value
         self.value = self.value + self.cards_list.get(1).unwrap().value;
+
+        // 调整value bar
+        self.set_value(q_text, self.value);
+    }
+
+    pub fn set_value(&mut self, q_text: &mut Query<(&mut Text, Entity)>, new_value: EValue) {
+        match self.is_highlight {
+            true => {
+                self.value_handler
+                    .set_value(q_text, format!("{}{}{}", "△", new_value.to_string(), "△"));
+            }
+            false => {
+                self.value_handler.set_value(q_text, new_value.to_string());
+            }
+        }
+    }
+
+    pub fn highlight(&mut self) {
+        self.is_highlight = true;
+    }
+
+    pub fn de_highlight(&mut self) {
+        self.is_highlight = false;
     }
 }
 
@@ -396,12 +422,21 @@ impl HandsHandler {
     pub fn reveal_card(
         &mut self,
         assert_server: &Res<AssetServer>,
+        q_text: &mut Query<(&mut Text, Entity)>,
         q_img: &mut Query<(&mut UiImage, &Parent)>,
     ) {
         self.hand_handler_list
             .get_mut(0)
             .unwrap()
-            .reveal_card(assert_server, q_img);
+            .reveal_card(assert_server, q_text, q_img);
+    }
+
+    pub fn de_highlight_hand(&mut self, hand_num: usize) {
+        self.hand_handler_list.get_mut(hand_num).unwrap().de_highlight();
+    }
+
+    pub fn highlight_hand(&mut self, hand_num: usize) {
+        self.hand_handler_list.get_mut(hand_num).unwrap().highlight();
     }
 }
 
@@ -429,9 +464,10 @@ impl DealerHandler {
     pub fn reveal_card(
         &mut self,
         assert_server: &Res<AssetServer>,
+        q_text: &mut Query<(&mut Text, Entity)>,
         q_img: &mut Query<(&mut UiImage, &Parent)>,
     ) {
-        self.hands_handler.reveal_card(assert_server, q_img);
+        self.hands_handler.reveal_card(assert_server, q_text, q_img);
     }
 
     pub fn reset(&mut self, commands: &mut Commands, assert_server: &Res<AssetServer>) {
@@ -440,6 +476,14 @@ impl DealerHandler {
 
         // 新增一個空hand
         self.hands_handler.push_blank_hand(commands, assert_server);
+    }
+
+    pub fn de_highlight(&mut self) {
+        self.hands_handler.de_highlight_hand(0);
+    }
+
+    pub fn highlight(&mut self) {
+        self.hands_handler.highlight_hand(0);
     }
 }
 
@@ -480,6 +524,14 @@ impl PlayerHandler {
     ) {
         self.hands_handler
             .split(commands, asset_server, q_text, hand_index);
+    }
+
+    pub fn de_highlight_hand(&mut self, hand_num: usize) {
+        self.hands_handler.de_highlight_hand(hand_num);
+    }
+
+    pub fn highlight_hand(&mut self, hand_num: usize) {
+        self.hands_handler.highlight_hand(hand_num);
     }
 }
 
@@ -558,15 +610,50 @@ impl ResFrameworkHandler {
     pub fn dealer_reveal_card(
         &mut self,
         assert_server: &Res<AssetServer>,
+        q_text: &mut Query<(&mut Text, Entity)>,
         q_img: &mut Query<(&mut UiImage, &Parent)>,
     ) {
         if let Some(dealer_handler) = &mut self.dealer_handler {
-            let cards_len =  dealer_handler.hands_handler.hand_handler_list.get(0).unwrap().cards_list.len();
+            let cards_len = dealer_handler
+                .hands_handler
+                .hand_handler_list
+                .get(0)
+                .unwrap()
+                .cards_list
+                .len();
             if cards_len == 2 {
-                dealer_handler.reveal_card(assert_server, q_img);
+                dealer_handler.reveal_card(assert_server, q_text, q_img);
             }
         } else {
             error!("dealer_handler not constructured!");
+        }
+    }
+
+    pub fn player_de_highlight_hand(&mut self, hand_num: usize) {
+        if let Some(player_handler) = &mut self.player_handler {
+            info!("player de highlight:{hand_num:?}");
+            player_handler.de_highlight_hand(hand_num);
+        }
+    }
+
+    pub fn player_highlight_hand(&mut self, hand_num: usize) {
+        if let Some(player_handler) = &mut self.player_handler {
+            info!("player highlight:{hand_num:?}");
+            player_handler.highlight_hand(hand_num);
+        }
+    }
+
+    pub fn dealer_highlight(&mut self) {
+        if let Some(dealer_handler) = &mut self.dealer_handler {
+            info!("dealer highlight");
+            dealer_handler.highlight();
+        }
+    }
+
+    pub fn dealer_de_highlight(&mut self) {
+        if let Some(dealer_handler) = &mut self.dealer_handler {
+            info!("dealer de highlight");
+            dealer_handler.highlight();
         }
     }
 }

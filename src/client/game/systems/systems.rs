@@ -4,6 +4,8 @@ use crate::{
     client::{
         // dealer::resources::ResDealer,
         game::{
+            client_events::EventClientFocusChange,
+            components::CompCard,
             server_response_events::{EventResponseDealerDrawCard, EventResponseGameOver},
             states::GameState,
         },
@@ -55,7 +57,7 @@ pub fn update_server_state(
                         game_over_event_writer.send(EventResponseGameOver {
                             bet_chips,
                             win_chips,
-                            player_chips
+                            player_chips,
                         });
                     }
                     _ => {}
@@ -79,6 +81,7 @@ pub fn update_client_state(
     game_state_next_state: &mut ResMut<NextState<GameState>>,
     res_focus_next_state: &mut ResMut<NextState<FocusState>>,
     res_framework_handler: &mut ResMut<ResFrameworkHandler>,
+    event_writer: &mut EventWriter<EventClientFocusChange>,
 ) {
     // 获取server状态
     let server_state: GameState = table.table.get_state().into();
@@ -101,6 +104,14 @@ pub fn update_client_state(
     };
     info!("set focus_state:{new_focus_state:?}");
     res_focus_next_state.set(new_focus_state);
-    info!("set focus_res:{new_focus_res:?}");
-    res_framework_handler.focus = new_focus_res;
+    if res_framework_handler.focus != new_focus_res {
+        // focus changed
+        event_writer.send(EventClientFocusChange {
+            old_focus: res_framework_handler.focus.clone(),
+            new_focus: new_focus_res.clone(),
+        });
+
+        info!("set focus_res:{new_focus_res:?}");
+        res_framework_handler.focus = new_focus_res;
+    }
 }

@@ -64,12 +64,12 @@ pub fn handle_response_wait_player_buy_insurance(
 ) {
     for _event in event_reader.read().into_iter() {
         info!("Receive Event: ResponseWaitPlayerBuyInsurance");
-        update_client_state(
-            &table,
-            &mut game_state_next_state,
-            &mut res_focus_next_state,
-            &mut res_framework_handler,
-        );
+        // update_client_state(
+        //     &table,
+        //     &mut game_state_next_state,
+        //     &mut res_focus_next_state,
+        //     &mut res_framework_handler,
+        // );
         todo!();
     }
 }
@@ -86,12 +86,12 @@ pub fn handle_response_insurance_result(
             "Receive Event: ResponseInsuranceResult\tis dealer blackjack:{:?}",
             event.is_dealer_blackjack
         );
-        update_client_state(
-            &table,
-            &mut game_state_next_state,
-            &mut res_focus_next_state,
-            &mut res_framework_handler,
-        );
+        // update_client_state(
+        //     &table,
+        //     &mut game_state_next_state,
+        //     &mut res_focus_next_state,
+        //     &mut res_framework_handler,
+        // );
         todo!()
     }
 }
@@ -130,12 +130,12 @@ pub fn handle_response_player_stand(
             "Receive Event: ResponsePlayerStand\tis_stop:{:?}",
             event.is_player_stop
         );
-        update_client_state(
-            &table,
-            &mut game_state_next_state,
-            &mut res_focus_next_state,
-            &mut res_framework_handler,
-        );
+        // update_client_state(
+        //     &table,
+        //     &mut game_state_next_state,
+        //     &mut res_focus_next_state,
+        //     &mut res_framework_handler,
+        // );
     }
 }
 
@@ -156,7 +156,7 @@ pub fn handle_response_game_over(
         event_writer.send(EventClientGameOver {
             bet_chips: *bet_chips,
             win_chips: *win_chips,
-            player_chips:*player_chips,
+            player_chips: *player_chips,
         });
     }
 }

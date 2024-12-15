@@ -6,7 +6,7 @@
     - [x] split
     - [] 开局多路
 - Client
-    - [] Button高亮显示调整
+    - [x] Button高亮显示调整
     - [x] Resource整合
     - [x] 隐藏Dealer的暗牌
     - [x] 实时展示点数
@@ -15,10 +15,12 @@
         - [] GameOver结算-展示剩余筹码、当局筹码
         - [] 玩家Action提示
     - [] 自定义下注
+    - [] Focus高亮
 - Server
     - [] 仿真deck
     - [] BUG修复：超过17点还会拿牌
     - [] BUG修复：player所有hand全bust之后还会拿牌
+    - [] BUG修复：Dealer拿到Blackjack时偶尔会继续拿牌（先10后A）
 - Solver
     - [] 离线Solver
     - [] Solver整合Client
