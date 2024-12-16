@@ -338,7 +338,7 @@ impl HandHandler {
         match self.is_highlight {
             true => {
                 self.value_handler
-                    .set_value(q_text, format!("{}{}{}", "△", new_value.to_string(), "△"));
+                    .set_value(q_text, format!("{}{}{}", "↑", new_value.to_string(), "↑"));
             }
             false => {
                 self.value_handler.set_value(q_text, new_value.to_string());
@@ -346,12 +346,18 @@ impl HandHandler {
         }
     }
 
-    pub fn highlight(&mut self) {
-        self.is_highlight = true;
+    pub fn update_value(&mut self, q_text: &mut Query<(&mut Text, Entity)>) {
+        self.set_value(q_text, self.value);
     }
 
-    pub fn de_highlight(&mut self) {
+    pub fn highlight(&mut self, q_text: &mut Query<(&mut Text, Entity)>) {
+        self.is_highlight = true;
+        self.update_value(q_text);
+    }
+
+    pub fn de_highlight(&mut self, q_text: &mut Query<(&mut Text, Entity)>) {
         self.is_highlight = false;
+        self.update_value(q_text);
     }
 }
 
@@ -431,12 +437,18 @@ impl HandsHandler {
             .reveal_card(assert_server, q_text, q_img);
     }
 
-    pub fn de_highlight_hand(&mut self, hand_num: usize) {
-        self.hand_handler_list.get_mut(hand_num).unwrap().de_highlight();
+    pub fn de_highlight_hand(&mut self, q_text: &mut Query<(&mut Text, Entity)>, hand_num: usize) {
+        self.hand_handler_list
+            .get_mut(hand_num)
+            .unwrap()
+            .de_highlight(q_text);
     }
 
-    pub fn highlight_hand(&mut self, hand_num: usize) {
-        self.hand_handler_list.get_mut(hand_num).unwrap().highlight();
+    pub fn highlight_hand(&mut self, q_text: &mut Query<(&mut Text, Entity)>, hand_num: usize) {
+        self.hand_handler_list
+            .get_mut(hand_num)
+            .unwrap()
+            .highlight(q_text);
     }
 }
 
@@ -478,12 +490,12 @@ impl DealerHandler {
         self.hands_handler.push_blank_hand(commands, assert_server);
     }
 
-    pub fn de_highlight(&mut self) {
-        self.hands_handler.de_highlight_hand(0);
+    pub fn de_highlight(&mut self, q_text: &mut Query<(&mut Text, Entity)>) {
+        self.hands_handler.de_highlight_hand(q_text, 0);
     }
 
-    pub fn highlight(&mut self) {
-        self.hands_handler.highlight_hand(0);
+    pub fn highlight(&mut self, q_text: &mut Query<(&mut Text, Entity)>) {
+        self.hands_handler.highlight_hand(q_text, 0);
     }
 }
 
@@ -526,12 +538,12 @@ impl PlayerHandler {
             .split(commands, asset_server, q_text, hand_index);
     }
 
-    pub fn de_highlight_hand(&mut self, hand_num: usize) {
-        self.hands_handler.de_highlight_hand(hand_num);
+    pub fn de_highlight_hand(&mut self, q_text: &mut Query<(&mut Text, Entity)>, hand_num: usize) {
+        self.hands_handler.de_highlight_hand(q_text, hand_num);
     }
 
-    pub fn highlight_hand(&mut self, hand_num: usize) {
-        self.hands_handler.highlight_hand(hand_num);
+    pub fn highlight_hand(&mut self, q_text: &mut Query<(&mut Text, Entity)>, hand_num: usize) {
+        self.hands_handler.highlight_hand(q_text, hand_num);
     }
 }
 
@@ -629,31 +641,39 @@ impl ResFrameworkHandler {
         }
     }
 
-    pub fn player_de_highlight_hand(&mut self, hand_num: usize) {
+    pub fn player_de_highlight_hand(
+        &mut self,
+        q_text: &mut Query<(&mut Text, Entity)>,
+        hand_num: usize,
+    ) {
         if let Some(player_handler) = &mut self.player_handler {
             info!("player de highlight:{hand_num:?}");
-            player_handler.de_highlight_hand(hand_num);
+            player_handler.de_highlight_hand(q_text, hand_num);
         }
     }
 
-    pub fn player_highlight_hand(&mut self, hand_num: usize) {
+    pub fn player_highlight_hand(
+        &mut self,
+        q_text: &mut Query<(&mut Text, Entity)>,
+        hand_num: usize,
+    ) {
         if let Some(player_handler) = &mut self.player_handler {
             info!("player highlight:{hand_num:?}");
-            player_handler.highlight_hand(hand_num);
+            player_handler.highlight_hand(q_text, hand_num);
         }
     }
 
-    pub fn dealer_highlight(&mut self) {
+    pub fn dealer_highlight(&mut self, q_text: &mut Query<(&mut Text, Entity)>) {
         if let Some(dealer_handler) = &mut self.dealer_handler {
             info!("dealer highlight");
-            dealer_handler.highlight();
+            dealer_handler.highlight(q_text);
         }
     }
 
-    pub fn dealer_de_highlight(&mut self) {
+    pub fn dealer_de_highlight(&mut self, q_text: &mut Query<(&mut Text, Entity)>) {
         if let Some(dealer_handler) = &mut self.dealer_handler {
             info!("dealer de highlight");
-            dealer_handler.highlight();
+            dealer_handler.de_highlight(q_text);
         }
     }
 }

@@ -23,6 +23,9 @@ pub fn update_server_state(
     mut game_state_next_state: ResMut<NextState<GameState>>,
     mut dealer_draw_card_event_writer: EventWriter<EventResponseDealerDrawCard>,
     mut game_over_event_writer: EventWriter<EventResponseGameOver>,
+    mut res_focus_next_state: ResMut<NextState<FocusState>>,
+    mut res_framework_handler: ResMut<ResFrameworkHandler>,
+    mut event_writer: EventWriter<EventClientFocusChange>,
 ) {
     let action: Option<EPlayerAction> = match game_state.get() {
         GameState::DealerCheckBlackJack
@@ -66,6 +69,14 @@ pub fn update_server_state(
                 let game_state = table.table.get_state();
                 info!("New GameState:{game_state:?}");
                 game_state_next_state.set(game_state.into());
+
+                update_client_state(
+                    &table,
+                    &mut game_state_next_state,
+                    &mut res_focus_next_state,
+                    &mut res_framework_handler,
+                    &mut event_writer,
+                );
             }
             Err(e) => {
                 info!("Error: Update Game State - {e:?}");
@@ -104,6 +115,8 @@ pub fn update_client_state(
     };
     info!("set focus_state:{new_focus_state:?}");
     res_focus_next_state.set(new_focus_state);
+    info!("old focus:{:?}", res_framework_handler.focus);
+    info!("new focus:{:?}", new_focus_res);
     if res_framework_handler.focus != new_focus_res {
         // focus changed
         event_writer.send(EventClientFocusChange {

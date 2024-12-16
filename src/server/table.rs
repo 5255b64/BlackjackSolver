@@ -419,10 +419,10 @@ impl STable {
             }
             (table_state, player_state) => {
                 // ignore
-                println!(
-                    "状态错误：table状态-{:?} player状态-{:?}",
-                    table_state, player_state
-                );
+                // println!(
+                //     "状态错误：table状态-{:?} player状态-{:?}",
+                //     table_state, player_state
+                // );
                 log::info!(
                     "状态错误：table状态-{:?} player状态-{:?}",
                     table_state,

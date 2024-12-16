@@ -176,6 +176,7 @@ pub fn handle_client_game_over(
 pub fn handle_client_focus_change(
     mut event_reader: EventReader<EventClientFocusChange>,
     mut res_framework_handler: ResMut<ResFrameworkHandler>,
+    mut q_text: Query<(&mut Text, Entity)>,
 ) {
     for event in event_reader.read().into_iter() {
         let EventClientFocusChange {
@@ -188,17 +189,17 @@ pub fn handle_client_focus_change(
         );
         // old取消高亮
         match old_focus_hand {
-            Focus::Dealer => {res_framework_handler.dealer_de_highlight()}
+            Focus::Dealer => res_framework_handler.dealer_de_highlight(&mut q_text),
             Focus::Player(hand_num) => {
-                res_framework_handler.player_de_highlight_hand(*hand_num)
+                res_framework_handler.player_de_highlight_hand(&mut q_text, *hand_num)
             }
             Focus::None => {}
         }
         // new高亮
         match new_focus_hand {
-            Focus::Dealer => {res_framework_handler.dealer_highlight()}
+            Focus::Dealer => res_framework_handler.dealer_highlight(&mut q_text),
             Focus::Player(hand_num) => {
-                res_framework_handler.player_highlight_hand(*hand_num)
+                res_framework_handler.player_highlight_hand(&mut q_text, *hand_num)
             }
             Focus::None => {}
         }

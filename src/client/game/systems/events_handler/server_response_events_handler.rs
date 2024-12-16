@@ -9,7 +9,7 @@ use super::{
     super::super::events::server_response_events::*, EventClientGameOver,
     EventClientPlayerDrawCard, EventClientPlayerSplitCards, EventClientUpdateState,
 };
-use super::{super::systems::update_client_state, EventClientDealerDrawCard};
+use super::EventClientDealerDrawCard;
 
 pub fn handle_response_init_game_with_cards(
     mut event_reader: EventReader<EventResponseInitGameWithCards>,
@@ -120,22 +120,14 @@ pub fn handle_response_player_split_cards(
 
 pub fn handle_response_player_stand(
     mut event_reader: EventReader<EventResponsePlayerStand>,
-    table: ResMut<ResGameTable>,
-    mut game_state_next_state: ResMut<NextState<GameState>>,
-    mut res_focus_next_state: ResMut<NextState<FocusState>>,
-    mut res_framework_handler: ResMut<ResFrameworkHandler>,
+    mut event_writer: EventWriter<EventClientUpdateState>,
 ) {
     for event in event_reader.read().into_iter() {
         info!(
             "Receive Event: ResponsePlayerStand\tis_stop:{:?}",
             event.is_player_stop
         );
-        // update_client_state(
-        //     &table,
-        //     &mut game_state_next_state,
-        //     &mut res_focus_next_state,
-        //     &mut res_framework_handler,
-        // );
+        event_writer.send(EventClientUpdateState {});
     }
 }
 

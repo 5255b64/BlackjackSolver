@@ -11,11 +11,10 @@
     - [x] 隐藏Dealer的暗牌
     - [x] 实时展示点数
     - [] 添加每个hand的bet数据
-    - [] InfoBar-实时展示牌局状态
-        - [] GameOver结算-展示剩余筹码、当局筹码
-        - [] 玩家Action提示
+    - [x] InfoBar-实时展示牌局状态
+        - [x] GameOver结算-展示剩余筹码、当局筹码
     - [] 自定义下注
-    - [] Focus高亮
+    - [x] Focus高亮
 - Server
     - [] 仿真deck
     - [] BUG修复：超过17点还会拿牌
