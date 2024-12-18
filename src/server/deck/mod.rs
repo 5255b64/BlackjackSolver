@@ -1,12 +1,14 @@
 pub mod random_deck;
+pub mod diy_deck;
+
 use std::collections::HashMap;
 use fraction::Fraction;
-use super::card::{ECard, ECardPoint};
+use super::card::{ECard, ECardNumber, ECardPoint};
 
 pub trait TDeck {
     fn draw(&mut self) -> Option<ECard>;
 
-    fn draw_specific(&mut self, card: ECard) -> Option<ECard>;
+    fn draw_specific(&mut self, card: ECardNumber) -> Option<ECardNumber>;
 
     fn shuffle(&mut self);
 

@@ -1,6 +1,7 @@
 use super::card::ECard;
 use super::card::ECardPoint;
 use super::config::SGameRule;
+use super::deck::diy_deck::SDiyDeck;
 use super::deck::random_deck::SRandomDeck;
 use super::deck::TDeck;
 use super::hand::dealer_hand::SDealerHand;
@@ -8,7 +9,6 @@ use super::hand::player_hand::SPlayerHand;
 use super::player::EPlayerAction;
 use super::value::EValue;
 use fraction::{Fraction, ToPrimitive};
-use std::borrow::BorrowMut;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -27,7 +27,7 @@ pub enum ETableState {
 #[derive(Debug)]
 pub enum EPlayerActionError {
     // player action与table状态不符
-    ActionStatusError,
+    ActionStatusError(ETableState, EPlayerAction),
     // bet值不符合和要求
     CheckBetError,
     // insurance值不符合和要求
@@ -87,10 +87,10 @@ pub enum ETableOutputEvent {
     PlayerStand {
         is_player_stop: bool,
     },
-    DealerDrawCard {
+    DealerHit {
         card: ECard,
-        is_dealer_stop: bool,
-    }, // 等于 DealerHit
+    },
+    DealerStand {},
     GameOver {
         player_chips: usize,
         bet_chips: usize,
@@ -126,6 +126,14 @@ impl STable {
         STable::new(rule, dealer_hand, player_hands, 0, Box::new(deck))
     }
 
+    pub fn new_diy_deck(cards: Vec<ECard>) -> Self {
+        let rule = SGameRule::default();
+        let dealer_hand = SDealerHand::new();
+        let player_hands = vec![SPlayerHand::new()];
+        let deck = SDiyDeck::from(cards);
+        STable::new(rule, dealer_hand, player_hands, 0, Box::new(deck))
+    }
+
     pub fn reset(&mut self) {
         self.state = ETableState::PlayerBet;
         self.dealer_hand.reset();
@@ -146,7 +154,7 @@ impl STable {
         &mut self,
         action: EPlayerAction,
     ) -> Result<ETableOutputEvent, EPlayerActionError> {
-        println!(
+        log::info!(
             "SERVER\t--\tserver_state:{:?}\tuser_action:{:?}",
             self.state.clone(),
             action
@@ -370,6 +378,7 @@ impl STable {
                 }
             }
             (table_state, EPlayerAction::WaitNext) => {
+                println!("DEBUG - table_state:\t{table_state:?}");
                 match table_state {
                     ETableState::DealerCheckBlackJack => {
                         if self.dealer_hand.hand.cards.len() != 2 {
@@ -382,36 +391,58 @@ impl STable {
                             self.state = ETableState::PlayerBuyInsurance;
                             Ok(ETableOutputEvent::WaitPlayerBuyInsurance)
                         } else {
-                            // 非blackjack 进入用户操作状态
-                            if self.player_hands.len() != 1
-                                || self.player_hands.get(0).unwrap().hand.cards.len() != 2
-                            {
-                                return Err(EPlayerActionError::HandLengthError);
-                            }
-                            // 状态转移
-                            if self.player_hands.get(0).unwrap().should_split() {
-                                self.state = ETableState::PlayerSplitOrDoubleDownOrHitOrStand(0);
+                            // 判断是否 Dealer BlackJack
+                            if self.dealer_hand.point() == 21 {
+                                // blackjack 直接进行结算
+                                self.state = ETableState::CheckResultAndReset;
+                                Ok(ETableOutputEvent::DealerStand {})
                             } else {
-                                self.state = ETableState::PlayerDoubleDownOrHitOrStand(0);
+                                // 非blackjack 进入用户操作状态
+                                if self.player_hands.len() != 1
+                                    || self.player_hands.get(0).unwrap().hand.cards.len() != 2
+                                {
+                                    return Err(EPlayerActionError::HandLengthError);
+                                }
+                                // 状态转移
+                                if self.player_hands.get(0).unwrap().should_split() {
+                                    self.state =
+                                        ETableState::PlayerSplitOrDoubleDownOrHitOrStand(0);
+                                } else {
+                                    self.state = ETableState::PlayerDoubleDownOrHitOrStand(0);
+                                }
+                                Ok(ETableOutputEvent::WaitForPlayerAction)
                             }
-                            Ok(ETableOutputEvent::WaitForPlayerAction)
                         }
                     }
                     ETableState::DealerHitOrStand => {
-                        // 不足17且不爆牌时 继续拿牌
-                        let hand = &mut self.dealer_hand;
-                        let card = self.deck.draw().unwrap();
-                        hand.draw(card);
-                        let point = hand.point();
-                        let is_dealer_stop = point > 17 || point == 1;
-                        // 状态转移
-                        if is_dealer_stop {
-                            self.state = ETableState::CheckResultAndReset;
+                        // 判断当前是否需要拿牌
+                        // 当Player的所有hand均bust或者black时，无需拿牌
+                        let mut flag_is_player_all_bust_or_bj = true;
+                        for hand in &self.player_hands {
+                            if !hand.is_blackjack() && !hand.is_bust() {
+                                flag_is_player_all_bust_or_bj = false;
+                                break;
+                            }
                         }
-                        Ok(ETableOutputEvent::DealerDrawCard {
-                            card,
-                            is_dealer_stop,
-                        })
+
+                        if !flag_is_player_all_bust_or_bj {
+                            // 不足17且不爆牌时 继续拿牌
+                            let hand = &mut self.dealer_hand;
+                            let point = hand.point();
+                            let is_dealer_stop = point >= 17 || point == 1;
+                            // 状态转移
+                            if is_dealer_stop {
+                                self.state = ETableState::CheckResultAndReset;
+                                Ok(ETableOutputEvent::DealerStand {})
+                            } else {
+                                let card = self.deck.draw().unwrap();
+                                hand.draw(card);
+                                Ok(ETableOutputEvent::DealerHit { card })
+                            }
+                        } else {
+                            self.state = ETableState::CheckResultAndReset;
+                            Ok(ETableOutputEvent::DealerStand {})
+                        }
                     }
                     ETableState::CheckResultAndReset => Ok(self.check_result_and_reset()),
                     _ => Ok(ETableOutputEvent::WaitForPlayerAction),
@@ -429,7 +460,10 @@ impl STable {
                     player_state
                 );
                 // println!("状态错误：table状态-{:?} player状态-{:?}", table_state, player_state);
-                Err(EPlayerActionError::ActionStatusError)
+                Err(EPlayerActionError::ActionStatusError(
+                    table_state,
+                    player_state,
+                ))
             }
         }
     }
@@ -507,47 +541,6 @@ impl STable {
             }
         }
         self.player_chips += win_chips_amount;
-
-        // let is_player_blackjack = self.is_player_blackjack();
-        // if is_player_blackjack && is_dealer_blackjack {
-        //     // 庄家与玩家均BJ
-        //     // Push
-        //     // self.player_chips += self.player_hands.get(0).unwrap().get_bet();
-        //     win_value += self.player_hands.get(0).unwrap().get_bet();
-        // } else if is_player_blackjack && !is_dealer_blackjack {
-        //     // 庄家不BJ且玩家BJ
-        //     // 玩家胜利
-        //     let win_value = (self.rule.blackjack_pay + 1)
-        //         * Fraction::from(self.player_hands.get(0).unwrap().get_bet());
-        //     let win_value = win_value.floor().to_usize().unwrap();
-        //     self.player_hands
-        //         .get_mut(0)
-        //         .unwrap()
-        //         .borrow_mut()
-        //         .win(win_value);
-        //     win_chips_amount += win_value;
-        // } else {
-        //     // 庄家与玩家均不BJ
-        //     for player_hand in &mut self.player_hands {
-        //         let player_point = player_hand.point();
-        //         if player_point > dealer_point {
-        //             // 玩家胜利
-        //             let win_value = player_hand.get_bet();
-        //             player_hand.win(win_value);
-        //             win_chips_amount += win_value;
-        //         } else if player_point < dealer_point
-        //             || player_hand.is_bust()
-        //             || is_dealer_blackjack
-        //         {
-        //             // 玩家失败
-        //             player_hand.lose();
-        //         } else {
-        //             // 平局push 无需处理
-        //         }
-        //         // 将筹码返还给玩家
-        //         self.player_chips += player_hand.get_bet();
-        //     }
-        // }
 
         // 重置状态
         self.reset_dealer_hand();

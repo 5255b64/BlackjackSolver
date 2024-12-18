@@ -6,13 +6,13 @@ use rand::{
 use std::ops::Add;
 use strum_macros::{Display, EnumIter};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct ECard {
     pub color: ECardColor,
     pub value: ECardNumber,
 }
 
-#[derive(Debug, Copy, Clone, EnumIter, Hash, Display)]
+#[derive(Debug, Copy, Clone, EnumIter, Hash, Display, PartialEq, Eq)]
 pub enum ECardColor {
     Hearts,
     Diamonds,
@@ -142,7 +142,6 @@ impl Add<ECardNumber> for EValue {
         self + tmp
     }
 }
-
 /// 随机生成一个ECardNumber枚举
 impl Distribution<ECardNumber> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> ECardNumber {

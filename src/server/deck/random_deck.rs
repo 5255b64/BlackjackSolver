@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use super::super::card::{ECardNumber, ECardPoint};
 use super::super::deck::TDeck;
 
-/// 随即卡池
+/// 随机卡池
 /// 根据卡牌的初始占比，按概率抽牌。
 /// 无状态：当某张牌从牌库中抽出后，不影响后续抽牌的概率。
 pub struct SRandomDeck {
@@ -95,8 +95,8 @@ impl TDeck for SRandomDeck {
         }
     }
 
-    fn draw_specific(&mut self, card: ECard) -> Option<ECard> {
-        Some(card)
+    fn draw_specific(&mut self, card_num: ECardNumber) -> Option<ECardNumber> {
+        Some(card_num)
     }
 
     fn shuffle(&mut self) {
@@ -127,29 +127,11 @@ mod tests {
     #[tokio::test]
     async fn test_draw_specific() {
         let mut deck = SRandomDeck::new();
-        println!(
-            "{:?}",
-            deck.draw_specific(ECard {
-                color: ECardColor::Hearts,
-                value: ECardNumber::Eight
-            })
-        );
-        println!("{:?}", deck.draw_specific(ECard {
-            color: ECardColor::Diamonds,
-            value: ECardNumber::Ace
-        }));
-        println!("{:?}", deck.draw_specific(ECard {
-            color: ECardColor::Spades,
-            value: ECardNumber::Jack
-        }));
-        println!("{:?}", deck.draw_specific(ECard {
-            color: ECardColor::Clubs,
-            value: ECardNumber::Five
-        }));
-        println!("{:?}", deck.draw_specific(ECard {
-            color: ECardColor::Hearts,
-            value: ECardNumber::King
-        }));
+        println!("{:?}", deck.draw_specific(ECardNumber::Eight));
+        println!("{:?}", deck.draw_specific(ECardNumber::Ace));
+        println!("{:?}", deck.draw_specific(ECardNumber::Jack));
+        println!("{:?}", deck.draw_specific(ECardNumber::Five));
+        println!("{:?}", deck.draw_specific(ECardNumber::King));
     }
     #[tokio::test]
     async fn test_get_probability_map() {

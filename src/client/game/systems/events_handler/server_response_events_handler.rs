@@ -31,12 +31,10 @@ pub fn handle_response_init_game_with_cards(
 
         event_writer_dealer_draw_card.send(EventResponseDealerDrawCard {
             card: dealer_cards[0],
-            is_dealer_stop: false,
             is_revealed: true,
         });
         event_writer_dealer_draw_card.send(EventResponseDealerDrawCard {
             card: dealer_cards[1],
-            is_dealer_stop: false,
             is_revealed: false,
         });
         for card in player_cards {
@@ -182,16 +180,14 @@ pub fn handle_response_dealer_draw_card(
     for event in event_reader.read().into_iter() {
         let EventResponseDealerDrawCard {
             card,
-            is_dealer_stop,
             is_revealed,
         } = event;
         info!(
-            "Receive Event: ResponseDealerDrawCard {:?}\tis_stop:{:?}",
-            card, is_dealer_stop
+            "Receive Event: ResponseDealerDrawCard {:?}",
+            card
         );
         event_writer_client_dealer_draw_card.send(EventClientDealerDrawCard {
             card: *card,
-            is_dealer_stop: *is_dealer_stop,
             is_revealed: *is_revealed,
         });
     }

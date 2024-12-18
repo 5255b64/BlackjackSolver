@@ -33,7 +33,7 @@ pub struct EventResponsePlayerStand {
 pub struct EventResponseGameOver {
     pub bet_chips: usize,
     pub win_chips: usize,
-    pub player_chips:usize,
+    pub player_chips: usize,
 }
 
 #[derive(Event)]
@@ -46,7 +46,6 @@ pub struct EventResponsePlayerDrawCard {
 #[derive(Event)]
 pub struct EventResponseDealerDrawCard {
     pub card: ECard,
-    pub is_dealer_stop: bool,
     pub is_revealed: bool,
 }
 

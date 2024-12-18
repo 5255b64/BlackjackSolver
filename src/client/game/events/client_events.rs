@@ -12,7 +12,6 @@ pub struct EventClientPlayerSplitCards {
 #[derive(Event)]
 pub struct EventClientDealerDrawCard {
     pub card: ECard,
-    pub is_dealer_stop: bool,
     pub is_revealed: bool,
 }
 

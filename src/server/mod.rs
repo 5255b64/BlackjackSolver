@@ -6,3 +6,4 @@ pub mod config;
 pub mod table;
 pub mod player;
 pub mod solver;
+mod tests;

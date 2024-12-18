@@ -87,15 +87,8 @@ pub fn handle_client_dealer_draw_card(
     mut q_img: Query<(&mut UiImage, &Parent)>,
 ) {
     for event in event_reader.read().into_iter() {
-        let EventClientDealerDrawCard {
-            card,
-            is_dealer_stop,
-            is_revealed,
-        } = event;
-        info!(
-            "Receive Event: EventClientDealerDrawCard {:?}\tis_stop:{:?}",
-            card, is_dealer_stop
-        );
+        let EventClientDealerDrawCard { card, is_revealed } = event;
+        info!("Receive Event: EventClientDealerDrawCard {:?}", card);
         res_framework_handler.dealer_reveal_card(&assert_server, &mut q_text, &mut q_img);
         res_framework_handler.dealer_draw_new_card(
             &mut commands,

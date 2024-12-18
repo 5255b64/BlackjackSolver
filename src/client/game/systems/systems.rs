@@ -42,13 +42,11 @@ pub fn update_server_state(
                 info!("Server Response: {r:?}");
 
                 match r {
-                    ETableOutputEvent::DealerDrawCard {
+                    ETableOutputEvent::DealerHit {
                         card,
-                        is_dealer_stop,
                     } => {
                         dealer_draw_card_event_writer.send(EventResponseDealerDrawCard {
                             card,
-                            is_dealer_stop,
                             is_revealed: true,
                         });
                     }
