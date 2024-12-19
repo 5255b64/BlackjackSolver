@@ -16,7 +16,8 @@
     - [] 自定义下注
     - [x] Focus高亮
 - Server
-    - [] 仿真deck
+    - [x] 仿真deck(Queue Deck)
+    - [x] 恰当时机进行shuffle
     - [x] 自定义deck 可以自定抽牌顺序
     - [x] BUG修复：Dealer超过17点还会拿牌
     - [x] BUG修复：player所有hand全bust或者black之后之后还会拿牌

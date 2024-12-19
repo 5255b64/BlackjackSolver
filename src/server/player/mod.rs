@@ -1,4 +1,4 @@
-pub mod StaticStrategyPlayer;
+pub mod static_strategy_player;
 
 #[derive(Debug, Clone)]
 pub enum EPlayerAction {

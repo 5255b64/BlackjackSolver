@@ -1,9 +1,6 @@
-use bevy::{
-    ecs::{identifier::error, observer::TriggerTargets},
-    prelude::*,
-};
+use bevy::prelude::*;
 
-use crate::server::{card::ECard, table::STable, value::EValue};
+use crate::server::{card::ECard, deck::ECardNum, table::STable, value::EValue};
 
 use super::{card::components::Card, components::*};
 
@@ -30,6 +27,7 @@ pub struct ResFrameworkHandler {
     pub button_bar_handler: Option<ButtonBarHandler>,
     pub entity: Option<Entity>,
     pub focus: Focus,
+    pub remain_cards: Option<usize>,
 }
 
 /// 焦点

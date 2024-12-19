@@ -1,7 +1,9 @@
 use super::card::ECard;
 use super::card::ECardPoint;
-use super::config::SGameRule;
+use super::deck::ECardNum;
+use super::rule::SGameRule;
 use super::deck::diy_deck::SDiyDeck;
+use super::deck::queue_deck::SQueueDeck;
 use super::deck::random_deck::SRandomDeck;
 use super::deck::TDeck;
 use super::hand::dealer_hand::SDealerHand;
@@ -57,11 +59,12 @@ pub struct STable {
 
 impl Default for STable {
     fn default() -> Self {
-        let rule = SGameRule::default();
-        let dealer_hand = SDealerHand::new();
-        let player_hands = vec![SPlayerHand::new()];
-        let deck = SRandomDeck::new();
-        STable::new(rule, dealer_hand, player_hands, 0, Box::new(deck))
+        // let rule = SGameRule::default();
+        // let dealer_hand = SDealerHand::new();
+        // let player_hands = vec![SPlayerHand::new()];
+        // let deck = SRandomDeck::new();
+        // STable::new(rule, dealer_hand, player_hands, 0, Box::new(deck))
+        STable::new_queue_deck(1)
     }
 }
 
@@ -131,6 +134,14 @@ impl STable {
         let dealer_hand = SDealerHand::new();
         let player_hands = vec![SPlayerHand::new()];
         let deck = SDiyDeck::from(cards);
+        STable::new(rule, dealer_hand, player_hands, 0, Box::new(deck))
+    }
+
+    pub fn new_queue_deck(num_of_deck: u8) -> Self {
+        let rule = SGameRule::default();
+        let dealer_hand = SDealerHand::new();
+        let player_hands = vec![SPlayerHand::new()];
+        let deck = SQueueDeck::new(num_of_deck);
         STable::new(rule, dealer_hand, player_hands, 0, Box::new(deck))
     }
 
@@ -545,6 +556,20 @@ impl STable {
         // 重置状态
         self.reset_dealer_hand();
         self.reset_player_hand();
+
+        // 判断是否shuffle
+        let cards_num = match self.deck.cards_num() {
+            ECardNum::Some(num) => num,
+            ECardNum::Infinite => 1,
+        };
+        let cards_remain = match self.deck.remain_cards_num() {
+            ECardNum::Some(num) => num,
+            ECardNum::Infinite => 1,
+        };
+        if self.rule.check_threshold(cards_num, cards_remain) {
+            self.deck.shuffle();
+        }
+        
         // 状态转移
         self.state = ETableState::PlayerBet;
         ETableOutputEvent::GameOver {
@@ -552,5 +577,9 @@ impl STable {
             win_chips: win_chips_amount,
             player_chips: self.player_chips,
         }
+    }
+
+    pub fn remain_cards_num(&self) -> ECardNum {
+        self.deck.remain_cards_num()
     }
 }

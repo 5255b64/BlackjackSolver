@@ -5,13 +5,13 @@ use std::collections::HashMap;
 
 use super::super::card::{ECardNumber, ECardPoint};
 use super::super::deck::TDeck;
+use super::ECardNum;
 
 /// 随机卡池
 /// 根据卡牌的初始占比，按概率抽牌。
 /// 无状态：当某张牌从牌库中抽出后，不影响后续抽牌的概率。
 pub struct SRandomDeck {
     pub cards: Vec<ECard>,
-    pub number_probability_map: HashMap<ECardNumber, Fraction>,
     pub point_probability_map: HashMap<ECardPoint, Fraction>,
 }
 
@@ -47,22 +47,6 @@ impl SRandomDeck {
                 });
             }
         }
-        let mut number_probability_map: HashMap<ECardNumber, Fraction> = HashMap::new();
-
-        number_probability_map.insert(ECardNumber::Ace, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Two, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Three, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Four, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Five, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Six, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Seven, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Eight, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Nine, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Ten, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Jack, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::Queen, Fraction::new(1u64, 13u64));
-        number_probability_map.insert(ECardNumber::King, Fraction::new(1u64, 13u64));
-
         let mut point_probability_map: HashMap<ECardPoint, Fraction> = HashMap::new();
 
         point_probability_map.insert(ECardPoint::Ace, Fraction::new(1u64, 13u64));
@@ -78,7 +62,6 @@ impl SRandomDeck {
 
         SRandomDeck {
             cards,
-            number_probability_map,
             point_probability_map,
         }
     }
@@ -107,12 +90,17 @@ impl TDeck for SRandomDeck {
     fn get_point_probability_map(&self) -> &HashMap<ECardPoint, Fraction> {
         &self.point_probability_map
     }
+    fn remain_cards_num(&self) -> ECardNum {
+        ECardNum::Infinite
+    }
+    
+    fn cards_num(&self) -> ECardNum {
+        ECardNum::Infinite
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::server::card::{ECard, ECardColor};
-
     use super::super::super::card::{ECardNumber, ECardPoint};
     use super::super::super::deck::TDeck;
     use super::SRandomDeck;

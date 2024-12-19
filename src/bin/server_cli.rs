@@ -1,7 +1,7 @@
 use tokio::{self, time};
-use BlackjackSolver::server::card::ECardNumber;
-use BlackjackSolver::server::player::StaticStrategyPlayer::SStaticStrategyPlayer;
-use BlackjackSolver::server::table::STable;
+use blackjack_solver::server::card::ECardNumber;
+use blackjack_solver::server::player::static_strategy_player::SStaticStrategyPlayer;
+use blackjack_solver::server::table::STable;
 
 #[tokio::main]
 async fn main() {

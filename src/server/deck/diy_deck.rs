@@ -1,115 +1,86 @@
-use crate::server::card::{ECard, ECardColor};
+use crate::server::card::ECard;
 use fraction::Fraction;
 use rand::seq::SliceRandom;
-use rand::{thread_rng, Rng};
+use rand::thread_rng;
 use std::collections::HashMap;
-use strum::IntoEnumIterator;
 
 use super::super::card::{ECardNumber, ECardPoint};
 use super::super::deck::TDeck;
+use super::{new_probability_map_from_cards, new_probability_map_from_number_map, ECardNum};
 
 /// 手动构建卡池
 /// 手动指定卡池顺序
 /// 有状态：当某张牌从牌库中抽出后，影响后续抽牌的概率。
 pub struct SDiyDeck {
     pub cards: Vec<ECard>,
-    pub number_probability_map: HashMap<ECardNumber, Fraction>,
+    pub number_map: HashMap<ECardNumber, usize>,
     pub point_probability_map: HashMap<ECardPoint, Fraction>,
     // 指针 指向下一张抽到的牌
-    draw_ptr: usize,
+    pub draw_ptr: usize,
 }
 
 impl SDiyDeck {
     pub fn from(cards: Vec<ECard>) -> Self {
-        let cards_len = cards.len();
-        let mut map = HashMap::<ECardNumber, usize>::new();
-        for card in &cards {
-            let num = card.value;
-            if map.contains_key(&num) {
-                map.insert(num, map.get(&num).unwrap() + 1);
-            }
-        }
-
-        let mut number_probability_map: HashMap<ECardNumber, Fraction> = HashMap::new();
-
-        for e in ECardNumber::iter() {
-            let num = match map.get(&e) {
-                Some(r) => *r,
-                None => 0,
-            };
-            number_probability_map.insert(
-                ECardNumber::Ace,
-                Fraction::new(num as u64, cards_len as u64),
-            );
-        }
-
-        // number_probability_map.insert(ECardNumber::Ace, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Two, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Three, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Four, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Five, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Six, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Seven, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Eight, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Nine, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Ten, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Jack, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::Queen, Fraction::new(1u64, 13u64));
-        // number_probability_map.insert(ECardNumber::King, Fraction::new(1u64, 13u64));
-
-        let mut point_probability_map: HashMap<ECardPoint, Fraction> = HashMap::new();
-
-        // point_probability_map.insert(ECardPoint::Ace, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Two, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Three, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Four, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Five, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Six, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Seven, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Eight, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Nine, Fraction::new(1u64, 13u64));
-        // point_probability_map.insert(ECardPoint::Ten, Fraction::new(4u64, 13u64));
+        let (number_map, point_probability_map) = new_probability_map_from_cards(&cards);
 
         SDiyDeck {
             cards,
-            number_probability_map,
+            number_map,
             point_probability_map,
             draw_ptr: 0,
         }
     }
 
-    #[inline]
-    pub fn cards_num(&self) -> usize {
-        self.cards.len()
+    fn inner_remain_cards_num(&self) -> usize {
+        self.cards.len() - self.draw_ptr
     }
 
-    #[inline]
-    pub fn remain_cards_num(&self) -> usize {
-        self.cards_num() - self.draw_ptr
+    fn inner_cards_num(&self) -> usize {
+        self.cards.len()
     }
 }
 
 impl TDeck for SDiyDeck {
     fn draw(&mut self) -> Option<ECard> {
-        match self.cards.get(self.draw_ptr) {
+        // 判断是否shuffle
+        // 手牌不足时需要shuffle
+        if self.inner_remain_cards_num() <= 0 {
+            self.shuffle();
+        }
+        
+        // 抽出一张卡
+        let result = match self.cards.get(self.draw_ptr) {
             None => None,
             Some(x) => {
                 self.draw_ptr += 1;
                 Some(*x)
             }
+        };
+        // 重新计算map
+        if let Some(x) = result {
+            let value = x.value;
+            self.number_map
+                .insert(value, *self.number_map.get(&value).unwrap() - 1);
+            let num = match self.remain_cards_num() {
+                ECardNum::Some(x) => x,
+                ECardNum::Infinite => 0,
+            };
+            self.point_probability_map = new_probability_map_from_number_map(&self.number_map, num);
         }
+
+        result
     }
 
     fn draw_specific(&mut self, card_num: ECardNumber) -> Option<ECardNumber> {
         for ptr in self.draw_ptr..self.cards.len() {
             if self.cards.get(ptr).unwrap().value == card_num {
                 // swap
-                let tmp = self.cards.get(ptr).unwrap().clone();
-                self.cards.remove(ptr);
-                self.cards
-                    .insert(ptr, self.cards.get(self.draw_ptr).unwrap().clone());
-                self.cards.remove(self.draw_ptr);
-                self.cards.insert(self.draw_ptr, tmp);
+                let ele1 = self.cards.get(ptr).unwrap().clone();
+                let ele2 = self.cards.get(self.draw_ptr).unwrap().clone();
+                let ptr1 = self.cards.get_mut(ptr).unwrap();
+                *ptr1 = ele2;
+                let ptr2 = self.cards.get_mut(self.draw_ptr).unwrap();
+                *ptr2 = ele1;
                 return match self.draw() {
                     Some(card) => Some(card.value),
                     None => None,
@@ -123,15 +94,26 @@ impl TDeck for SDiyDeck {
         let mut rng = thread_rng();
         self.cards.shuffle(&mut rng);
         self.draw_ptr = 0;
+        (self.number_map, self.point_probability_map) = new_probability_map_from_cards(&self.cards);
     }
 
     fn get_point_probability_map(&self) -> &HashMap<ECardPoint, Fraction> {
         &self.point_probability_map
     }
+
+    fn remain_cards_num(&self) -> ECardNum {
+        ECardNum::Some(self.inner_remain_cards_num())
+    }
+
+    fn cards_num(&self) -> super::ECardNum {
+        ECardNum::Some(self.inner_cards_num())
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use strum::IntoEnumIterator;
+
     use crate::server::{
         card::{ECard, ECardColor},
         deck::diy_deck::*,
@@ -158,11 +140,42 @@ mod tests {
                 color: ECardColor::Hearts,
                 value: ECardNumber::Six,
             },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Six,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Six,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Six,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Six,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Nine,
+            },
         ];
         let mut deck = SDiyDeck::from(v);
-        for _ in 0..deck.cards_num() {
-            println!("{:?}", deck.draw());
-            println!("remain_cards:{:?}", deck.remain_cards_num())
+        let cards_num = match deck.cards_num() {
+            ECardNum::Some(num) => num,
+            ECardNum::Infinite => 0,
+        };
+        for _ in 0..cards_num {
+            println!("card_num:{:?}", deck.cards_num());
+            println!("draw_ptr:{:?}", deck.draw_ptr);
+            println!("draw_card:{:?}", deck.draw());
+            println!("remain_cards:{:?}", deck.remain_cards_num());
+            let map = deck.get_point_probability_map();
+            println!("prob map:",);
+            for key in map.keys() {
+                println!("key:{key:?}, value:{:?}", map.get(&key));
+            }
         }
     }
 
@@ -192,5 +205,72 @@ mod tests {
         println!("draw:{:?}", deck.draw_specific(ECardNumber::Six));
         println!("cards:{:?}", deck.cards);
         println!("ptr:{:?}", deck.draw_ptr);
+    }
+
+    #[tokio::test]
+    async fn test_probability_map() {
+        let v = vec![
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Ace,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Two,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Three,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Four,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Five,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Six,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Seven,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Eight,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Nine,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Ten,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Jack,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::Queen,
+            },
+            ECard {
+                color: ECardColor::Hearts,
+                value: ECardNumber::King,
+            },
+        ];
+        let deck = SDiyDeck::from(v);
+        let point_map = deck.get_point_probability_map();
+        let number_map = &deck.number_map;
+        for point in ECardPoint::iter() {
+            println!("point_map:{:?}:{:?}", point, point_map.get(&point));
+        }
+        for number in ECardNumber::iter() {
+            println!("number_map:{:?}:{:?}", number, number_map.get(&number));
+        }
     }
 }

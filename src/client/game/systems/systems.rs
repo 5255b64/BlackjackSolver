@@ -42,9 +42,7 @@ pub fn update_server_state(
                 info!("Server Response: {r:?}");
 
                 match r {
-                    ETableOutputEvent::DealerHit {
-                        card,
-                    } => {
+                    ETableOutputEvent::DealerHit { card } => {
                         dealer_draw_card_event_writer.send(EventResponseDealerDrawCard {
                             card,
                             is_revealed: true,
@@ -113,8 +111,8 @@ pub fn update_client_state(
     };
     info!("set focus_state:{new_focus_state:?}");
     res_focus_next_state.set(new_focus_state);
-    info!("old focus:{:?}", res_framework_handler.focus);
-    info!("new focus:{:?}", new_focus_res);
+    info!("focus old:{:?}", res_framework_handler.focus);
+    info!("focus new:{:?}", new_focus_res);
     if res_framework_handler.focus != new_focus_res {
         // focus changed
         event_writer.send(EventClientFocusChange {
@@ -124,5 +122,17 @@ pub fn update_client_state(
 
         info!("set focus_res:{new_focus_res:?}");
         res_framework_handler.focus = new_focus_res;
+    }
+
+    // 更新deck的remain card num
+    let old_remain_card = res_framework_handler.remain_cards;
+    let new_remain_card = match table.table.remain_cards_num() {
+        crate::server::deck::ECardNum::Some(num) => Some(num),
+        crate::server::deck::ECardNum::Infinite => None,
+    };
+    if old_remain_card != new_remain_card {
+        info!("remain card old:{:?}", old_remain_card);
+        info!("remain card new:{:?}", new_remain_card);
+        res_framework_handler.remain_cards = new_remain_card;
     }
 }
